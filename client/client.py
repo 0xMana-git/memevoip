@@ -43,7 +43,7 @@ def recv_thread(fifo):
             print("EOF reached")
             return
         fifo.write(buffer_recv)
-        print("recv bufsize")
+        #print("recv bufsize")
 
 def main():
     # os.remove(fifo_in_path)

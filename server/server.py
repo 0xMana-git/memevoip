@@ -67,7 +67,7 @@ def start_mux():
         "-filter_complex",
         f"amerge=inputs={len(clients_lsdir)}",
         "-ac", "2"]
-    command += ["-f", "flac", pipes_path + muxout_path]
+    command += ["-f", "wav", pipes_path + muxout_path]
     
     print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
@@ -107,7 +107,7 @@ def worker_send(conn, addr):
         while(not muxout_buffer_ready):
             time.sleep(0.005)
         conn.send(muxout_buf)
-        print("sent data to " + addr)
+        #print("sent data to " + addr)
         client_mux_syncset[addr] = True
 
 def worker_recv(conn, addr):
