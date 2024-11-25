@@ -52,7 +52,7 @@ def start_mux():
     clients_lsdir.remove(muxout_path)
     print(clients_lsdir)
     for client_pipe in clients_lsdir:
-        command += ["-i", client_pipe]
+        command += ["-i", pipes_path + client_pipe]
 
     if len(clients_lsdir) > 1:
         command += [
