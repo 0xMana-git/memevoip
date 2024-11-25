@@ -56,15 +56,15 @@ def worker_init(conn, addr):
     client_mux_syncset[addr] = True
     client_recv_fifos[addr] = os.mkfifo(pipes_path + addr, 0o600)
     #TODO: thread handler
-    send_thread = threading.Thread(worker_send,(conn, addr))
-    recv_thread = threading.Thread(worker_recv,(conn, addr))
+    send_thread = threading.Thread(target=worker_send, args=(conn, addr))
+    recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))
     send_thread.start()
     recv_thread.start()
 
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
-    os.makedirs(pipes_path)
+    os.makedirs(pipes_path, exist_ok=True)
     while True:
         connection, client_address = server.accept()
         worker_init(connection, str(client_address))
