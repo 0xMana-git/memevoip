@@ -140,8 +140,9 @@ def muxer_proc():
     clients_lsdir.remove(muxout_path)
     print(f"Clients: {str(clients_lsdir)}")
     mux_out_full = pipes_path + muxout_path
+
     start_mux(clients_lsdir, pipes_path, mux_out_full)
-    #iterate all clients
+
     print(f"opening {mux_out_full}")
     out_pipe = open(mux_out_full, "rb")
     print("opened")
@@ -165,11 +166,7 @@ def worker_send(conn, addr):
 
 def worker_recv(conn, addr):
     global client_recv_fifos
-    while not recv_in_ready:
-        #sleep longer to wait for ffmpeg to open pipe
-        
-        time.sleep(0.1)
-    client_recv_fifos[addr] = open(pipes_path + addr, "wb")
+    client_recv_fifos[addr] = open(pipes_path + addr, "r+b")
 
     while True:
         data = conn.read(cfg.buffer_size)
