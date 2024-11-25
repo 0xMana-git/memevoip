@@ -89,11 +89,15 @@ def worker_init(conn, addr):
     send_thread.start()
     recv_thread.start()
 
+def muxer_init():
+    mux_thread = threading.Thread(target=muxer_proc)
+    mux_thread.start()
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
     shutil.rmtree(pipes_path, ignore_errors=True)
     os.makedirs(pipes_path, exist_ok=True)
+    muxer_init()
     while True:
         connection, client_address = server.accept()
         worker_init(connection, make_addr_key(client_address))
