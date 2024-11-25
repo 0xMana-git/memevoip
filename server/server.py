@@ -35,7 +35,7 @@ def mkfifo(fpath, open_mode, do_open=True):
         return open(fpath, open_mode)
 
 def make_addr_key(addr):
-    return str(addr).replace("'", "=").replace(" ", "_")
+    return str(addr).replace("'", "=").replace(" ", "_").replace(",", "_")
 
 def muxer_loop(out_pipe):
     global muxout_buffer_ready
