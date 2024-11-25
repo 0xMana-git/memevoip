@@ -7,6 +7,7 @@ import signal
 import subprocess
 import sys
 import utils
+import time
 
 logger = logging.getLogger(__name__)
 fifo_in_path = "audio_in"
@@ -63,12 +64,12 @@ def main():
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
     print("Initializing playback stream...")
-    process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", "audio_out"])
+    process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", fifo_out_path])
+    time.sleep(0.01)
     fifo_out = os.fdopen(os.open(fifo_out_path, os.O_WRONLY|os.O_NONBLOCK))
-    
     print("Initializing input stream...")
     fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY|os.O_NONBLOCK))
-    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", "audio_in"],
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", fifo_in_path],
     stdout=subprocess.DEVNULL,
     stderr=subprocess.DEVNULL)
     print("Connecting to host")
