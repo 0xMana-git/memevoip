@@ -138,7 +138,7 @@ def muxer_proc():
     time.sleep(cfg.server_sleep_time)
     clients_lsdir = os.listdir(pipes_path)
     clients_lsdir.remove(muxout_path)
-    print("Clients: " + clients_lsdir)
+    print(f"Clients: {str(clients_lsdir)}")
     mux_out_full = pipes_path + muxout_path
     start_mux(clients_lsdir, pipes_path, mux_out_full)
     #iterate all clients
