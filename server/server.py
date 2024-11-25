@@ -86,6 +86,7 @@ def clients_ready():
 def wait_client_mux():
     while not clients_ready():
         time.sleep(0.005)
+    muxout_buffer_ready = False
     for k in client_mux_syncset.keys():
         client_mux_syncset[k] = False
     
@@ -107,12 +108,13 @@ def worker_send(conn, addr):
     global muxout_buf
     global muxout_buffer_ready
     while True:
-        while(not muxout_buffer_ready) or client_mux_syncset[addr]:
+        while ((not muxout_buffer_ready) or client_mux_syncset[addr]):
             time.sleep(0.005)
             
         conn.send(muxout_buf)
-        print("send data with hash " + hashlib.sha256(muxout_buf).hexdigest())
         client_mux_syncset[addr] = True
+        print("send data with hash " + hashlib.sha256(muxout_buf).hexdigest())
+        
 
 def worker_recv(conn, addr):
     global client_recv_fifos
