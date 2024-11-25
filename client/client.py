@@ -56,10 +56,11 @@ def main():
     os.remove(fifo_out_path)
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
-    process_handle_playback = subprocess.Popen("aplay -f cd audio_out")
+    process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", "audio_out"])
     fifo_in = open(fifo_in_path, "rb")
+
     fifo_out = open(fifo_out_path, "wb")
-    process_handle_record = subprocess.Popen("ffmpeg -y -f pulse -sample_rate 44100 -channels 1 -i hw:0 -f wav audio_in 2>/dev/null")
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", "audio_in", "2>/dev/null"])
     print("Connecting to host")
     sock.connect((HOST, PORT))
     print("Connected")
