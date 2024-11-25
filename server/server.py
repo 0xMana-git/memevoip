@@ -48,6 +48,8 @@ def start_mux():
     #iterate all clients
     clients_lsdir = os.listdir(pipes_path)
     for client_pipe in clients_lsdir:
+        if client_pipe == muxout_path:
+            continue
         command += ["-i", client_pipe]
     command += ["-filter_complex", 
     f"amerge=inputs={len(clients_lsdir)}",
