@@ -64,7 +64,7 @@ def worker_init(conn, addr):
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
-
+    os.makedirs(pipes_path)
     while True:
         connection, client_address = server.accept()
         worker_init(connection, str(client_address))
