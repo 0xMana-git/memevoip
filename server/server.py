@@ -47,9 +47,8 @@ def start_mux():
     command = ["ffmpeg", "-y",]
     #iterate all clients
     clients_lsdir = os.listdir(pipes_path)
+    clients_lsdir.remove(muxout_path)
     for client_pipe in clients_lsdir:
-        if client_pipe == muxout_path:
-            continue
         command += ["-i", client_pipe]
     if len(clients_lsdir) > 1:
         command += [
