@@ -50,6 +50,8 @@ def start_mux():
     f"amerge=inputs={len(clients_lsdir)}",
     "-ac", "2", pipe_paths + muxout_path]
     time.sleep(5)
+    print("starting mux subproc, stopped accepting new clients(lol)")
+    print(clients_lsdir)
     subprocess.run(command)
 def muxer_proc():
     #init
