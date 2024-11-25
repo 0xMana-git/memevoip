@@ -3,6 +3,9 @@ import os
 import threading
 import socket
 import logging
+import signal
+import sys
+
 
 logger = logging.getLogger(__name__)
 fifo_in_path = "audio_in"
@@ -55,7 +58,12 @@ def main():
     rt.start()
     st.join()
     rt.join()
-
+def handle_int(sig, frame):
+    sock.close()
+    sock_open = False
+    print("Exiting...")
+    sys.exit(0)
+signal.signal(signal.SIGINT, handle_int)
 
 if __name__ == "__main__":
     main()

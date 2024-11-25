@@ -58,7 +58,7 @@ def worker_init(conn, addr):
     client_recv_fifos[addr] = os.mkfifo(pipes_path + addr, 0o600)
     #TODO: thread handler
     send_thread = threading.Thread(target=worker_send, args=(conn, addr))
-    recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))
+    recv_thread = threading.Thread(target=worker_recv, args=(conn, addr, client_recv_fifos[addr]))
     send_thread.start()
     recv_thread.start()
 
