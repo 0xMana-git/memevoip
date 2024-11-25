@@ -38,7 +38,7 @@ def recv_thread(fifo):
     global sock_open
     while sock_open:
         buffer_recv = sock.recv(buffer_size)
-        if not data:
+        if not buffer_recv:
             sock_open = False
             print("EOF reached")
             return
