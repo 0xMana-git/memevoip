@@ -35,7 +35,7 @@ def mkfifo(fpath, open_mode, do_open=True):
     if(open_mode == os.O_WRONLY):
         fmode = "wb"
     if do_open:
-        return os.fdopen(os.open(fpath, os.O_NONBLOCK | os.O_BINARY | open_mode), fmode)
+        return os.fdopen(os.open(fpath, os.O_NONBLOCK | open_mode), fmode)
 
 def make_addr_key(addr): 
     return str(addr).replace("'", "=").replace(" ", "_").replace(",", "_")
