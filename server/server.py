@@ -23,7 +23,7 @@ context.load_cert_chain(certfile, keyfile)
 server = context.wrap_socket(
     server, server_side=True
 )
-
+muxout_buf = b""
 muxout_buffer_ready = False
 client_muxes = {}
 client_mux_syncset = {}
@@ -39,9 +39,9 @@ def make_addr_key(addr):
 
 def muxer_loop(out_pipe):
     global muxout_buffer_ready
-    muxout_buffer_ready = false
+    muxout_buffer_ready = False
     muxout_buf = out_pipe.read(buffer_size)
-    muxout_buffer_ready = true
+    muxout_buffer_ready = True
 
 def start_mux():
     command = ["ffmpeg"]
@@ -59,6 +59,19 @@ def start_mux():
     print("starting mux subproc, stopped accepting new clients(lol)")
     print(clients_lsdir)
     subprocess.run(command)
+
+
+def clients_ready():
+    for v in client_mux_syncset.values():
+        if not v:
+            return False
+    return True
+def wait_client_mux():
+    while not clients_ready():
+        time.sleep(0.01)
+    for k in client_mux_syncset.keys():
+        client_mux_syncset[k] = False
+    
 def muxer_proc():
     #init
     #do not open here, since this will block until
