@@ -32,15 +32,29 @@ def mkfifo(fpath, open_mode):
     os.mkfifo(fpath, 0o600)
     return open(fpath, open_mode)
 
+def make_addr_key(addr):
+    return str(addr).replace("'", "=").replace(" ", "_")
 def muxer_loop(out_pipe):
     global muxout_buffer_ready
     muxout_buffer_ready = false
     muxout_buf = out_pipe.read(buffer_size)
     muxout_buffer_ready = true
 
+def start_mux():
+    command = ["ffmpeg"]
+    #iterate all clients
+    clients_lsdir = os.listdir(pipes_path)
+    for client_pipe in clients_lsdir:
+        command += ["-i", client_pipe]
+    command += ["-filter_complex", 
+    f"amerge=inputs={len(clients_lsdir)}",
+    "-ac", "2", pipe_paths + muxout_path]
+    time.sleep(5)
+    subprocess.run(command)
 def muxer_proc():
     #init
     out_pipe = mkfifo(pipe_paths + muxout_path, "rb")
+    threading.Thread(target=start_mux)
     while True:
         muxer_loop(out_pipe)
         wait_client_mux()
@@ -80,5 +94,5 @@ if __name__ == "__main__":
     os.makedirs(pipes_path, exist_ok=True)
     while True:
         connection, client_address = server.accept()
-        worker_init(connection, str(client_address))
+        worker_init(connection, make_addr_key(client_address))
 
