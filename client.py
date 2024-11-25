@@ -71,7 +71,7 @@ def main():
     print("Connected")
     sock_open = True
     print("Initializing input stream...")
-    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "1", "-i", "hw:0", "-f", "wav", fifo_in_path],
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y"] + cfg.ffmpeg_client_in + ["-sample_rate", "44100", "-channels", "1", "-f", "wav", fifo_in_path],
     stdout=subprocess.DEVNULL,
     stderr=subprocess.DEVNULL
     )
