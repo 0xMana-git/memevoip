@@ -51,7 +51,7 @@ def worker_recv(conn, addr, fifo_recv):
     #send data to fifo
     client_recv_fifos[addr].write(data)
     
-def worker(conn, addr):
+def worker_init(conn, addr):
     #add client
     client_mux_syncset[addr] = True
     client_recv_fifos[addr] = os.mkfifo(pipes_path + addr, 0o600)
@@ -67,10 +67,5 @@ if __name__ == "__main__":
 
     while True:
         connection, client_address = server.accept()
-        while True:
-            data = connection.recv(1024)
-            if not data:
-                break
-            print(f"Received: {data.decode('utf-8')}")
-
+        worker_init(connection, client_address)
 
