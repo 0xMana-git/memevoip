@@ -24,7 +24,7 @@ server = context.wrap_socket(
 
 
 client_muxes = {}
-
+client_mux_syncset = {}
 
 def muxer_loop(out_pipe):
     muxout_buffer_ready = false
