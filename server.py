@@ -71,7 +71,7 @@ def start_mux():
         f"amerge=inputs={len(clients_lsdir)}",
         ],
     #audio channel
-    command += ["-ac", "2"]
+    command += ["-ac", "1"]
     #sample rate
     command += ["-ar", "44100"]
     #sample format
