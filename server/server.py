@@ -9,7 +9,7 @@ PORT = 14880
 server = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 
-pipe_paths = "pipes/"
+pipes_path = "pipes/"
 key_base = "/etc/letsencrypt/live/mana.kyun.li"
 keyfile = key_base + "/privkey.pem"
 certfile = key_base + "/fullchain.pem"
