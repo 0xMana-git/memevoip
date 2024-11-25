@@ -10,7 +10,8 @@ import utils
 import cfg
 import sys
 import signal
-
+from __future__ import annotations
+import _io
 HOST = "0.0.0.0"
 PORT = 14880
 
@@ -37,10 +38,76 @@ client_recv_fifos = {}
 recv_in_ready = False
 
 
+
+def start_mux(clients : list, base_path : str):
+    command = ["ffmpeg", "-y",]
+    
+    for client_pipe in clients:
+        command += ["-i", base_path + client_pipe]
+
+    if len(clients) > 1:
+        command += [
+        "-filter_complex",
+        f"amerge=inputs={len(clients)}"]
+    #audio channel
+    command += ["-ac", "2"]
+    #sample rate
+    command += ["-ar", "44100"]
+    #sample format
+    #command += ["-sample-fmt", "s16"]
+    command += ["-f", "wav", base_path + muxout_path]
+    
+    print("starting mux subproc, stopped accepting new clients(lol)")
+    print("Running command: ")
+    print(command)
+    subprocess.Popen(command)
+
+
+g_all_clients : dict[str, Client]= {}
+
 class Client:
-    def __init__(self, conn : ssl.SSLSocket, addr):
-        self.addr_key = utils.make_addr_key(addr)
-        self.conn = conn
+    def __init__(self, conn : ssl.SSLSocket, addr_key : str):
+        self.addr_key = addr_key
+        self.socket = conn
+        self.client_pipe_root = pipes_path + self.addr_key + "/"
+        os.makedirs(self.client_pipe_root, exist_ok=True)
+        self.send_ready = False
+        self.muxout_buf = b""
+        self.client_pipes : dict[str, _io.BufferedWriter] = {}
+        self.muxout_pipe : _io.BufferedReader = None
+        self.pipe_broken = False
+
+
+    
+    def write_buffer(self, client_addr, buffer : bytes):
+        self.client_pipes[client_addr].write(buffer)
+    
+    def on_recv(self, buffer : bytes):
+        global g_all_clients
+        #echo to all buffers
+        for client in g_all_clients.values():
+            client.write_buffer(self.addr_key, buffer)
+    
+    def send_loop(self):
+        while True:
+            data = self.muxout_pipe.read(cfg.buffer_size)
+            self.socket.send(data)
+    
+    def recv_loop(self):
+        while True:
+            data = self.socket.recv(cfg.buffer_size)
+            if not data:
+                self.pipe_broken = True
+            self.on_recv(data)
+        
+
+    def reload_mux():
+        pass
+    
+
+ 
+
+
 
 
 
@@ -48,40 +115,9 @@ def muxer_loop(out_pipe):
     global muxout_buf
     global muxout_buffer_ready
     muxout_buffer_ready = False
-    #print("Muxing")
     muxout_buf = out_pipe.read(cfg.buffer_size)
-    #print("buffer ready")
     muxout_buffer_ready = True
 
-def start_mux():
-    global recv_in_ready
-    command = ["ffmpeg", "-y",]
-    print("5 seconds until mux process starts")
-    time.sleep(5)
-    #iterate all clients
-    clients_lsdir = os.listdir(pipes_path)
-    clients_lsdir.remove(muxout_path)
-    print(clients_lsdir)
-    for client_pipe in clients_lsdir:
-        command += ["-i", pipes_path + client_pipe]
-
-    if len(clients_lsdir) > 1:
-        command += [
-        "-filter_complex",
-        f"amerge=inputs={len(clients_lsdir)}"]
-    #audio channel
-    command += ["-ac", "2"]
-    #sample rate
-    command += ["-ar", "44100"]
-    #sample format
-    #command += ["-sample-fmt", "s16"]
-    command += ["-f", "wav", pipes_path + muxout_path]
-    
-    print("starting mux subproc, stopped accepting new clients(lol)")
-    print("Running command: ")
-    print(command)
-    recv_in_ready = True
-    subprocess.run(command)
 
 def clients_ready():
     for v in client_mux_syncset.values():
@@ -100,8 +136,16 @@ def muxer_proc():
     #do not open here, since this will block until
     #write happens
     utils.mkfifo(pipes_path + muxout_path, os.O_RDONLY, True)
-    smux_thread = threading.Thread(target=start_mux)
-    smux_thread.start()
+    
+    print("5 seconds until mux process starts")
+    time.sleep(5)
+    clients_lsdir = os.listdir(pipes_path)
+    clients_lsdir.remove(muxout_path)
+    print(clients_lsdir)
+
+    start_mux(clients_lsdir, pipes_path)
+    #iterate all clients
+    
     out_pipe = open(pipes_path + muxout_path, "rb")
     while True:
         muxer_loop(out_pipe)
