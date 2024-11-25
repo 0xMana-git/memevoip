@@ -12,7 +12,7 @@ server.setsockopt(socket.SOL_SOCKET, socket.SO_REUSEADDR, 1)
 pipe_paths = "pipes/"
 key_base = "/etc/letsencrypt/live/mana.kyun.li"
 keyfile = key_base + "/privkey.pem"
-certfile = key_base + "/cert.pem"
+certfile = key_base + "/fullchain.pem"
 #4kb
 buffer_size = 1024 * 4
 muxout_path = "muxed_out"
