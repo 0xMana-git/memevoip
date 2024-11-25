@@ -40,11 +40,11 @@ recv_in_ready = False
 
 
 
-def start_mux(clients : list, base_path : str):
+def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     command = ["ffmpeg", "-y",]
     
     for client_pipe in clients:
-        command += ["-i", base_path + client_pipe]
+        command += ["-i", muxin_base_path + client_pipe]
 
     if len(clients) > 1:
         command += [
@@ -138,12 +138,13 @@ def muxer_proc():
     time.sleep(cfg.server_sleep_time)
     clients_lsdir = os.listdir(pipes_path)
     clients_lsdir.remove(muxout_path)
-    print(clients_lsdir)
-
-    start_mux(clients_lsdir, pipes_path)
+    print("Clients: " + clients_lsdir)
+    mux_out_full = pipes_path + muxout_path
+    start_mux(clients_lsdir, pipes_path, mux_out_full)
     #iterate all clients
-    print("Mux started")
-    out_pipe = open(pipes_path + muxout_path, "rb")
+    print(f"opening {mux_out_full}")
+    out_pipe = open(mux_out_full, "rb")
+    print("opened")
     while True:
         muxer_loop(out_pipe)
         wait_client_mux()
