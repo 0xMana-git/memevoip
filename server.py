@@ -6,7 +6,7 @@ import os
 import shutil
 import subprocess
 import hashlib
-
+import utils
 
 HOST = "0.0.0.0"
 PORT = 14880
@@ -33,13 +33,7 @@ client_mux_syncset = {}
 client_recv_fifos = {}
 recv_in_ready = False
 
-def mkfifo(fpath, open_mode, do_open=True):
-    os.mkfifo(fpath, 0o600)
-    fmode = "rb"
-    if(open_mode == os.O_WRONLY):
-        fmode = "wb"
-    if do_open:
-        return os.fdopen(os.open(fpath, os.O_NONBLOCK | open_mode), fmode)
+
 
 def make_addr_key(addr): 
     return str(addr).replace("'", "_").replace(" ", "_").replace(",", "_").replace("(", "_").replace(")", "_")
@@ -100,7 +94,7 @@ def muxer_proc():
     #init
     #do not open here, since this will block until
     #write happens
-    mkfifo(pipes_path + muxout_path, os.O_RDONLY, True)
+    utils.mkfifo(pipes_path + muxout_path, os.O_RDONLY, True)
     smux_thread = threading.Thread(target=start_mux)
     smux_thread.start()
     out_pipe = open(pipes_path + muxout_path, "rb")
@@ -151,7 +145,7 @@ def worker_init(conn : ssl.SSLSocket, addr):
     #add client
     print("new client: " + addr)
     client_mux_syncset[addr] = True
-    client_recv_fifos[addr] = mkfifo(pipes_path + addr, os.O_WRONLY, False)
+    client_recv_fifos[addr] = utils.mkfifo(pipes_path + addr, os.O_WRONLY, False)
     #TODO: thread handler
     send_thread = threading.Thread(target=worker_send, args=(conn, addr))
     recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))

@@ -28,14 +28,6 @@ context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 sock = context.wrap_socket(sock_raw)
 sock_open = True
 
-def mkfifo(fpath, open_mode, do_open=True):
-    os.mkfifo(fpath, 0o600)
-    fmode = "rb"
-    if(open_mode == os.O_WRONLY):
-        fmode = "wb"
-    if do_open:
-        return os.fdopen(os.open(fpath, os.O_NONBLOCK | open_mode), fmode)
-
 def send_thread(fifo):
     global sock_open
     while sock_open:
