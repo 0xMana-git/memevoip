@@ -18,9 +18,6 @@ sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 HOST, PORT = "mana.kyun.li", 14880
 pipe_paths = "pipes/"
-key_base = "/etc/letsencrypt/live/mana.kyun.li"
-keyfile = key_base + "/privkey.pem"
-certfile = key_base + "/fullchain.pem"
 #4kb
 buffer_size = 1024 * 4
 muxout_path = "muxed_out"
