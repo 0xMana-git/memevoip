@@ -44,15 +44,15 @@ def muxer_loop(out_pipe):
     muxout_buffer_ready = True
 
 def start_mux():
-    command = ["ffmpeg"]
+    command = ["ffmpeg", "-y",]
     #iterate all clients
     clients_lsdir = os.listdir(pipes_path)
     for client_pipe in clients_lsdir:
         if client_pipe == muxout_path:
             continue
         command += ["-i", client_pipe]
-    command += ["-filter_complex", 
-    "-y",
+    command += [
+    "-filter_complex",
     f"amerge=inputs={len(clients_lsdir)}",
     "-ac", "2", "-f", "flac", pipes_path + muxout_path]
     print("5 seconds until mux process starts")
