@@ -15,7 +15,6 @@ fifo_out_path = "audio_out"
 fifo_in = None
 fifo_out = None
 sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-sock_raw.settimeout(10)
 
 HOST, PORT = "mana.kyun.li", 14880
 pipe_paths = "pipes/"
