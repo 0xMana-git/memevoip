@@ -28,6 +28,7 @@ muxout_buffer_ready = False
 client_muxes = {}
 client_mux_syncset = {}
 client_recv_fifos = {}
+recv_in_ready = False
 
 def mkfifo(fpath, open_mode, do_open=True):
     os.mkfifo(fpath, 0o600)
@@ -50,6 +51,7 @@ def muxer_loop(out_pipe):
     muxout_buffer_ready = True
 
 def start_mux():
+    global recv_in_ready
     command = ["ffmpeg", "-y",]
     print("5 seconds until mux process starts")
     time.sleep(5)
@@ -70,8 +72,8 @@ def start_mux():
     print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
     print(command)
+    recv_in_ready = True
     subprocess.run(command)
-
 
 def clients_ready():
     for v in client_mux_syncset.values():
@@ -101,25 +103,37 @@ def muxer_proc():
 def worker_send(conn, addr):
     global muxout_buf
     global muxout_buffer_ready
-    while(not muxout_buffer_ready):
-        time.sleep(0.01)
-    conn.send(muxout_buf)
-    client_mux_syncset[addr] = True
+    while True:
+        while(not muxout_buffer_ready):
+            time.sleep(0.01)
+        conn.send(muxout_buf)
+        client_mux_syncset[addr] = True
 
 def worker_recv(conn, addr):
     global client_recv_fifos
-    data = conn.read(buffer_size)
-    #send data to fifo
-    print(client_recv_fifos)
-    print("Writing to muxer")
-    client_recv_fifos[addr].write(data)
+    while not recv_in_ready:
+        #sleep longer to wait for ffmpeg to open pipe
+        
+        time.sleep(0.1)
+    client_recv_fifos[addr] = open(pipes_path + addr, "wb")
+
+    while True:
+        data = conn.read(buffer_size)
+        if not data:
+            return
+        #send data to fifo
+        print(client_recv_fifos)
+        print("Writing to muxer")
+        
+        
+        client_recv_fifos[addr].write(data)
     
 def worker_init(conn, addr):
     global client_recv_fifos
     #add client
     print("new client: " + addr)
     client_mux_syncset[addr] = True
-    client_recv_fifos[addr] = mkfifo(pipes_path + addr, os.O_WRONLY, True)
+    client_recv_fifos[addr] = mkfifo(pipes_path + addr, os.O_WRONLY, False)
     #TODO: thread handler
     send_thread = threading.Thread(target=worker_send, args=(conn, addr))
     recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))
