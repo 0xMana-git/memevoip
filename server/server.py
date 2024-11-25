@@ -5,6 +5,9 @@ import time
 import os
 import shutil
 import subprocess
+import hashlib
+
+
 HOST = "0.0.0.0"
 PORT = 14880
 
@@ -108,7 +111,7 @@ def worker_send(conn, addr):
             time.sleep(0.005)
             
         conn.send(muxout_buf)
-        #print("sent data to " + addr)
+        print("send data with hash " + hashlib.sha256(muxout_buf).hexdigest())
         client_mux_syncset[addr] = True
 
 def worker_recv(conn, addr):
