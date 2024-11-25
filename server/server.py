@@ -48,7 +48,7 @@ def worker_send(conn, addr):
     client_mux_syncset[addr] = True
 
 def worker_recv(conn, addr, fifo_recv):
-    data = conn.read(buf_size)
+    data = conn.read(buffer_size)
     #send data to fifo
     client_recv_fifos[addr].write(data)
     
