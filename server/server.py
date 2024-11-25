@@ -45,9 +45,9 @@ def muxer_loop(out_pipe):
     global muxout_buf
     global muxout_buffer_ready
     muxout_buffer_ready = False
-    print("Muxing")
+    #print("Muxing")
     muxout_buf = out_pipe.read(buffer_size)
-    print("buffer ready")
+    #print("buffer ready")
     muxout_buffer_ready = True
 
 def start_mux():
@@ -122,8 +122,8 @@ def worker_recv(conn, addr):
         if not data:
             return
         #send data to fifo
-        print(client_recv_fifos)
-        print("Writing to muxer")
+        #print(client_recv_fifos)
+        #print("Writing to muxer")
         
         
         client_recv_fifos[addr].write(data)
