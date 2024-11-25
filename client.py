@@ -66,9 +66,9 @@ def main():
     print("Initializing playback stream...")
     process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", fifo_out_path])
     time.sleep(0.01)
-    fifo_out = os.fdopen(os.open(fifo_out_path, os.O_WRONLY|os.O_NONBLOCK))
+    fifo_out = os.fdopen(os.open(fifo_out_path, os.O_WRONLY|os.O_NONBLOCK), "wb")
     print("Initializing input stream...")
-    fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY|os.O_NONBLOCK))
+    fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY|os.O_NONBLOCK), "rb")
     process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", fifo_in_path],
     stdout=subprocess.DEVNULL,
     stderr=subprocess.DEVNULL)
