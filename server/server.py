@@ -28,12 +28,14 @@ client_muxes = {}
 client_mux_syncset = {}
 client_recv_fifos = {}
 
-def mkfifo(fpath, open_mode):
+def mkfifo(fpath, open_mode, do_open=True):
     os.mkfifo(fpath, 0o600)
-    return open(fpath, open_mode)
+    if do_open:
+        return open(fpath, open_mode)
 
 def make_addr_key(addr):
     return str(addr).replace("'", "=").replace(" ", "_")
+
 def muxer_loop(out_pipe):
     global muxout_buffer_ready
     muxout_buffer_ready = false
@@ -56,9 +58,12 @@ def start_mux():
     subprocess.run(command)
 def muxer_proc():
     #init
-    out_pipe = mkfifo(pipes_path + muxout_path, "rb")
+    #do not open here, since this will block until
+    #write happens
+    mkfifo(pipes_path + muxout_path, "rb", False)
     smux_thread = threading.Thread(target=start_mux)
     smux_thread.start()
+    out_pipe = open(pipes_path + muxout_path, "rb")
     while True:
         muxer_loop(out_pipe)
         wait_client_mux()
