@@ -122,12 +122,13 @@ def worker_init(conn, addr):
     recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))
     send_thread.start()
     recv_thread.start()
+    print("client initialized")
 
 def muxer_init():
     mux_thread = threading.Thread(target=muxer_proc)
     mux_thread.start()
 
-    
+
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
