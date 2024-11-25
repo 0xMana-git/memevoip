@@ -25,7 +25,7 @@ server = context.wrap_socket(
 
 client_muxes = {}
 client_mux_syncset = {}
-
+client_recv_fifos = {}
 def muxer_loop(out_pipe):
     muxout_buffer_ready = false
     muxout_buf = out_pipe.read(buffer_size)
