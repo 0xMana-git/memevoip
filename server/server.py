@@ -52,12 +52,15 @@ def start_mux():
             continue
         command += ["-i", client_pipe]
     command += ["-filter_complex", 
+    "-y",
     f"amerge=inputs={len(clients_lsdir)}",
     "-ac", "2", "-f", "flac", pipes_path + muxout_path]
     print("5 seconds until mux process starts")
     time.sleep(5)
     print("starting mux subproc, stopped accepting new clients(lol)")
     print(clients_lsdir)
+    print("Running command: ")
+    print(command)
     subprocess.run(command)
 
 
