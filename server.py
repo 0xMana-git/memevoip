@@ -75,7 +75,7 @@ def start_mux():
     #sample rate
     command += ["-ar", "44100"]
     #sample format
-    command += ["-sample-fmt", "s16"]
+    #command += ["-sample-fmt", "s16"]
     command += ["-f", "wav", pipes_path + muxout_path]
     
     print("starting mux subproc, stopped accepting new clients(lol)")
