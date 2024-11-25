@@ -54,6 +54,7 @@ def worker_recv(conn, addr, fifo_recv):
     
 def worker_init(conn, addr):
     #add client
+    print("new client: " + addr)
     client_mux_syncset[addr] = True
     client_recv_fifos[addr] = os.mkfifo(pipes_path + addr, 0o600)
     #TODO: thread handler
