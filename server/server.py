@@ -69,7 +69,13 @@ def start_mux():
         command += [
         "-filter_complex",
         f"amerge=inputs={len(clients_lsdir)}",
-        "-ac", "2"]
+        ],
+    #audio channel
+    command += ["-ac", "2"]
+    #sample rate
+    command += ["-ar", "44100"]
+    #sample format
+    command += ["-sample-fmt", "s16"]
     command += ["-f", "wav", pipes_path + muxout_path]
     
     print("starting mux subproc, stopped accepting new clients(lol)")
@@ -135,8 +141,13 @@ def worker_recv(conn, addr):
         
         client_recv_fifos[addr].write(data)
     
-def worker_init(conn, addr):
+def worker_init(conn : ssl.SSLSocket, addr):
     global client_recv_fifos
+    global recv_in_ready
+    #deny new clients
+    if(recv_in_ready):
+        conn.close()
+        return
     #add client
     print("new client: " + addr)
     client_mux_syncset[addr] = True

@@ -76,8 +76,13 @@ def main():
 def handle_int(sig, frame):
     sock.close()
     sock_open = False
+    if process_handle_record != None:
+        process_handle_record.kill()
+    if process_handle_playback != None:
+        process_handle_playback.kill()
     print("Exiting...")
     sys.exit(0)
+
 signal.signal(signal.SIGINT, handle_int)
 
 if __name__ == "__main__":
