@@ -92,17 +92,21 @@ def main():
     rt = threading.Thread(target=recv_thread, args=(fifo_out,))
     st.start()
     rt.start()
+    print("initialized")
     st.join()
     rt.join()
 
-
-def handle_int(sig, frame):
+def close_resources():
+    global sock_open
     sock.close()
     sock_open = False
     if process_handle_record != None:
         process_handle_record.kill()
     if process_handle_playback != None:
         process_handle_playback.kill()
+
+def handle_int(sig, frame):
+    close_resources()
     print("Exiting...")
     sys.exit(0)
 
@@ -114,5 +118,6 @@ if __name__ == "__main__":
             main()
         except:
             pass
+        close_resources()
         print("Retrying in 1s")
         time.sleep(1)
