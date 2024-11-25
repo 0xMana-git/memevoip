@@ -24,6 +24,8 @@ pipe_paths = "pipes/"
 
 
 muxout_path = "muxed_out"
+
+g_do_exit = False
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock = context.wrap_socket(sock_raw)
@@ -82,7 +84,9 @@ def main():
     print("Connected")
     sock_open = True
     print("Initializing input stream...")
-    process_handle_record = subprocess.Popen(["ffmpeg", "-y"] + cfg.ffmpeg_client_in + ["-sample_rate", "44100", "-channels", "2", "-f", "wav", fifo_in_path],
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y"] + 
+                                             cfg.ffmpeg_client_in + 
+                                             ["-ac", "44100", "-ac", "2", "-f", "wav", fifo_in_path],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
         )
@@ -106,8 +110,10 @@ def close_resources():
         process_handle_playback.kill()
 
 def handle_int(sig, frame):
+    global g_do_exit
     close_resources()
     print("Exiting...")
+    g_do_exit = True
     sys.exit(0)
 
 signal.signal(signal.SIGINT, handle_int)
@@ -116,10 +122,10 @@ if __name__ == "__main__":
     while True:
         try:
             main()
-        except KeyboardInterrupt:
-            break
         except:
-            pass
+            break
+        if g_do_exit:
+            break
         close_resources()
         print("Retrying in 1s")
         time.sleep(1)
