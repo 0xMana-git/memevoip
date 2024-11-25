@@ -38,6 +38,7 @@ def make_addr_key(addr):
     return str(addr).replace("'", "=").replace(" ", "_").replace(",", "_")
 
 def muxer_loop(out_pipe):
+    global muxout_buf
     global muxout_buffer_ready
     muxout_buffer_ready = False
     muxout_buf = out_pipe.read(buffer_size)
@@ -93,6 +94,7 @@ def muxer_proc():
 
 
 def worker_send(conn, addr):
+    global muxout_buf
     global muxout_buffer_ready
     while(not muxout_buffer_ready):
         time.sleep(0.01)
