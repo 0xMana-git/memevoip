@@ -16,7 +16,8 @@ certfile = key_base + "/cert.pem"
 #4kb
 buffer_size = 1024 * 4
 muxout_path = "muxed_out"
-context = ssl.SSLContext(keyfile=keyfile, certfile=certfile)
+context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
+context.load_cert_chain(certfile, keyfile)
 server = context.wrap_socket(
     server, server_side=True
 )
