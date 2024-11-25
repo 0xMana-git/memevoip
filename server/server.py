@@ -41,7 +41,9 @@ def muxer_loop(out_pipe):
     global muxout_buf
     global muxout_buffer_ready
     muxout_buffer_ready = False
+    print("Muxing")
     muxout_buf = out_pipe.read(buffer_size)
+    print("buffer ready")
     muxout_buffer_ready = True
 
 def start_mux():
@@ -101,11 +103,12 @@ def worker_send(conn, addr):
     conn.send(muxout_buf)
     client_mux_syncset[addr] = True
 
-def worker_recv(conn, addr, fifo_recv):
+def worker_recv(conn, addr):
     global client_recv_fifos
     data = conn.read(buffer_size)
     #send data to fifo
     print(client_recv_fifos)
+    print("Writing to muxer")
     client_recv_fifos[addr].write(data)
     
 def worker_init(conn, addr):
@@ -116,13 +119,15 @@ def worker_init(conn, addr):
     client_recv_fifos[addr] = mkfifo(pipes_path + addr, "wb")
     #TODO: thread handler
     send_thread = threading.Thread(target=worker_send, args=(conn, addr))
-    recv_thread = threading.Thread(target=worker_recv, args=(conn, addr, client_recv_fifos[addr]))
+    recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))
     send_thread.start()
     recv_thread.start()
 
 def muxer_init():
     mux_thread = threading.Thread(target=muxer_proc)
     mux_thread.start()
+
+    
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
