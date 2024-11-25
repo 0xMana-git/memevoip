@@ -3,6 +3,7 @@ import ssl
 import threading
 import time
 import os
+import shutil
 HOST = "0.0.0.0"
 PORT = 14880
 
@@ -26,6 +27,11 @@ muxout_buffer_ready = False
 client_muxes = {}
 client_mux_syncset = {}
 client_recv_fifos = {}
+
+def mkfifo(fpath, open_mode):
+    os.mkfifo(fpath, 0o600)
+    return open(fpath, open_mode)
+
 def muxer_loop(out_pipe):
     global muxout_buffer_ready
     muxout_buffer_ready = false
@@ -34,11 +40,12 @@ def muxer_loop(out_pipe):
 
 def muxer_proc():
     #init
-    out_pipe = os.mkfifo(pipe_paths + muxout_path, 0o600)
+    out_pipe = mkfifo(pipe_paths + muxout_path, "rb")
     while True:
         muxer_loop(out_pipe)
         wait_client_mux()
-        
+
+
 
 def worker_send(conn, addr):
     global muxout_buffer_ready
@@ -59,7 +66,7 @@ def worker_init(conn, addr):
     #add client
     print("new client: " + addr)
     client_mux_syncset[addr] = True
-    client_recv_fifos[addr] = os.mkfifo(pipes_path + addr, 0o600)
+    client_recv_fifos[addr] = mkfifo(pipes_path + addr, "wb")
     #TODO: thread handler
     send_thread = threading.Thread(target=worker_send, args=(conn, addr))
     recv_thread = threading.Thread(target=worker_recv, args=(conn, addr, client_recv_fifos[addr]))
@@ -69,6 +76,7 @@ def worker_init(conn, addr):
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
+    shutil.rmtree(pipes_path, ignore_errors=True)
     os.makedirs(pipes_path, exist_ok=True)
     while True:
         connection, client_address = server.accept()
