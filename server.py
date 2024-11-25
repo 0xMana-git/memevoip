@@ -76,9 +76,6 @@ class Client:
         self.client_pipes : dict[str, _io.BufferedWriter] = {}
         self.muxout_pipe : _io.BufferedReader = None
         self.pipe_broken = False
-
-
-    
     def write_buffer(self, client_addr, buffer : bytes):
         self.client_pipes[client_addr].write(buffer)
     
@@ -100,7 +97,6 @@ class Client:
                 self.pipe_broken = True
             self.on_recv(data)
         
-
     def reload_mux():
         pass
     
@@ -137,8 +133,8 @@ def muxer_proc():
     #write happens
     utils.mkfifo(pipes_path + muxout_path, os.O_RDONLY, True)
     
-    print("5 seconds until mux process starts")
-    time.sleep(5)
+    print(f"{cfg.server_sleep_time} seconds until mux process starts")
+    time.sleep(cfg.server_sleep_time)
     clients_lsdir = os.listdir(pipes_path)
     clients_lsdir.remove(muxout_path)
     print(clients_lsdir)
