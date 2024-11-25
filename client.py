@@ -76,8 +76,8 @@ def main():
     print("Initializing input stream...")
      
     process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "1", "-i", "hw:0", "-f", "wav", fifo_in_path],
-    #stdout=subprocess.DEVNULL,
-    #stderr=subprocess.DEVNULL
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL
     )
     fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY), "rb")
     print("Connecting to host")
