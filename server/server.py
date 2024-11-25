@@ -22,11 +22,12 @@ server = context.wrap_socket(
     server, server_side=True
 )
 
-
+muxout_buffer_ready = False
 client_muxes = {}
 client_mux_syncset = {}
 client_recv_fifos = {}
 def muxer_loop(out_pipe):
+    global muxout_buffer_ready
     muxout_buffer_ready = false
     muxout_buf = out_pipe.read(buffer_size)
     muxout_buffer_ready = true
@@ -37,10 +38,10 @@ def muxer_proc():
     while True:
         muxer_loop(out_pipe)
         wait_client_mux()
-    
+        
 
 def worker_send(conn, addr):
-    
+    global muxout_buffer_ready
     while(not muxout_buffer_ready):
         time.sleep(0.01)
     conn.send(muxout_buf)
