@@ -67,7 +67,9 @@ def main():
     fifo_in = open(fifo_out_path, "wb")
     print("Initializing input stream...")
     fifo_out = os.fdopen(os.open(fifo_in_path, os.O_RDONLY|os.O_NONBLOCK))
-    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", "audio_in"])
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", "audio_in"],
+    stdout=subprocess.DEVNULL,
+    stderr=subprocess.DEVNULL)
     print("Connecting to host")
     sock.connect((HOST, PORT))
     print("Connected")
