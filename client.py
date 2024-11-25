@@ -13,7 +13,7 @@ import shutil
 
 logger = logging.getLogger(__name__)
 
-pipes_path = cfg.fifo_pipes_root + "/client_pipes/"
+pipes_path = cfg.fifo_pipes_root + "client_pipes/"
 fifo_in_path = pipes_path + "audio_in"
 fifo_out_path = pipes_path + "audio_out"
 fifo_in = None
