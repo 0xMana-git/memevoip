@@ -4,6 +4,7 @@ import threading
 import socket
 import logging
 import signal
+import subprocess
 import sys
 
 
@@ -34,6 +35,9 @@ def send_thread(fifo):
         buffer_send = fifo.read(buffer_size)
         sock.send(buffer_send)
         #print("sent bufsize")
+
+process_handle_playback = None
+process_handle_record = None
 def recv_thread(fifo):
     global sock_open
     while sock_open:
@@ -46,22 +50,29 @@ def recv_thread(fifo):
         #print("recv bufsize")
 
 def main():
-    # os.remove(fifo_in_path)
-    # os.remove(fifo_out_path)
-    # os.mkfifo(fifo_in_path)
-    # os.mkfifo(fifo_out_path)
+    global process_handle_playback
+    global process_handle_record
+    os.remove(fifo_in_path)
+    os.remove(fifo_out_path)
+    os.mkfifo(fifo_in_path)
+    os.mkfifo(fifo_out_path)
+    process_handle_playback = subprocess.Popen("aplay -f cd audio_out")
     fifo_in = open(fifo_in_path, "rb")
     fifo_out = open(fifo_out_path, "wb")
+    process_handle_record = subprocess.Popen("ffmpeg -y -f pulse -sample_rate 44100 -channels 1 -i hw:0 -f wav audio_in 2>/dev/null")
     print("Connecting to host")
     sock.connect((HOST, PORT))
     print("Connected")
     sock_open = True
+    
     st = threading.Thread(target=send_thread, args=(fifo_in,))
     rt = threading.Thread(target=recv_thread, args=(fifo_out,))
     st.start()
     rt.start()
     st.join()
     rt.join()
+
+
 def handle_int(sig, frame):
     sock.close()
     sock_open = False
