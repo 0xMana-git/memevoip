@@ -48,8 +48,10 @@ def start_mux():
     #iterate all clients
     clients_lsdir = os.listdir(pipes_path)
     clients_lsdir.remove(muxout_path)
+    print(clients_lsdir)
     for client_pipe in clients_lsdir:
         command += ["-i", client_pipe]
+
     if len(clients_lsdir) > 1:
         command += [
         "-filter_complex",
@@ -59,7 +61,6 @@ def start_mux():
     print("5 seconds until mux process starts")
     time.sleep(5)
     print("starting mux subproc, stopped accepting new clients(lol)")
-    print(clients_lsdir)
     print("Running command: ")
     print(command)
     subprocess.run(command)
