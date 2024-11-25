@@ -55,8 +55,10 @@ def start_mux():
     subprocess.run(command)
 def muxer_proc():
     #init
+    print("initializing muxer")
     out_pipe = mkfifo(pipes_path + muxout_path, "rb")
-    threading.Thread(target=start_mux)
+    smux_thread = threading.Thread(target=start_mux)
+    smux_thread.start()
     while True:
         muxer_loop(out_pipe)
         wait_client_mux()
