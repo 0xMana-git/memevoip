@@ -65,8 +65,7 @@ def start_mux():
     if len(clients_lsdir) > 1:
         command += [
         "-filter_complex",
-        f"amerge=inputs={len(clients_lsdir)}",
-        ]
+        f"amerge=inputs={len(clients_lsdir)}"]
     #audio channel
     command += ["-ac", "1"]
     #sample rate
