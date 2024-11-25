@@ -113,7 +113,7 @@ def worker_send(conn, addr):
             
         conn.send(muxout_buf)
         client_mux_syncset[addr] = True
-        print("send data with hash " + hashlib.sha256(muxout_buf).hexdigest())
+        #print("send data with hash " + hashlib.sha256(muxout_buf).hexdigest())
         
 
 def worker_recv(conn, addr):
