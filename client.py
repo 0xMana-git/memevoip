@@ -9,10 +9,13 @@ import sys
 import utils
 import time
 import cfg
+import shutil
 
 logger = logging.getLogger(__name__)
-fifo_in_path = "audio_in"
-fifo_out_path = "audio_out"
+
+pipes_path = cfg.fifo_pipes_root + "/client_pipes/"
+fifo_in_path = pipes_path + "audio_in"
+fifo_out_path = pipes_path + "audio_out"
 fifo_in = None
 fifo_out = None
 sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
@@ -55,8 +58,8 @@ def main():
     global process_handle_record
     global fifo_in
     global fifo_out
-    utils.remove_silent(fifo_in_path)
-    utils.remove_silent(fifo_out_path)
+    shutil.rmtree(pipes_path, ignore_errors=True)
+    os.makedirs(pipes_path, exist_ok=True)
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
     print("Initializing playback stream...")
