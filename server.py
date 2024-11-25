@@ -172,8 +172,12 @@ if __name__ == "__main__":
     server.listen(0)
     shutil.rmtree(pipes_path, ignore_errors=True)
     os.makedirs(pipes_path, exist_ok=True)
-    muxer_init()
+    muxer_did_init = False
+    print("Listening...")
     while True:
         connection, client_address = server.accept()
         worker_init(connection, make_addr_key(client_address))
+        if not muxer_did_init:
+            muxer_init()
+            muxer_did_init = True
 
