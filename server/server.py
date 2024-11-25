@@ -31,8 +31,11 @@ client_recv_fifos = {}
 
 def mkfifo(fpath, open_mode, do_open=True):
     os.mkfifo(fpath, 0o600)
+    fmode = "rb"
+    if(open_mode == os.O_WRONLY)
+        fmode = "wb"
     if do_open:
-        return os.fdopen(os.open(fpath, os.O_NONBLOCK, open_mode))
+        return os.fdopen(os.open(fpath, os.O_NONBLOCK, open_mode), fmode)
 
 def make_addr_key(addr):
     return str(addr).replace("'", "=").replace(" ", "_").replace(",", "_")
