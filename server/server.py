@@ -48,14 +48,14 @@ def start_mux():
         command += ["-i", client_pipe]
     command += ["-filter_complex", 
     f"amerge=inputs={len(clients_lsdir)}",
-    "-ac", "2", pipe_paths + muxout_path]
+    "-ac", "2", pipes_path + muxout_path]
     time.sleep(5)
     print("starting mux subproc, stopped accepting new clients(lol)")
     print(clients_lsdir)
     subprocess.run(command)
 def muxer_proc():
     #init
-    out_pipe = mkfifo(pipe_paths + muxout_path, "rb")
+    out_pipe = mkfifo(pipes_path + muxout_path, "rb")
     threading.Thread(target=start_mux)
     while True:
         muxer_loop(out_pipe)
