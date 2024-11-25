@@ -6,7 +6,7 @@ import logging
 import signal
 import subprocess
 import sys
-
+import utils
 
 logger = logging.getLogger(__name__)
 fifo_in_path = "audio_in"
@@ -58,8 +58,8 @@ def recv_thread(fifo):
 def main():
     global process_handle_playback
     global process_handle_record
-    os.remove(fifo_in_path)
-    os.remove(fifo_out_path)
+    utils.remove_silent(fifo_in_path)
+    utils.remove_silent(fifo_out_path)
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
     print("Initializing playback stream...")
