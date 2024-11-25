@@ -27,7 +27,13 @@ context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 sock = context.wrap_socket(sock_raw)
 sock_open = True
 
-
+def mkfifo(fpath, open_mode, do_open=True):
+    os.mkfifo(fpath, 0o600)
+    fmode = "rb"
+    if(open_mode == os.O_WRONLY):
+        fmode = "wb"
+    if do_open:
+        return os.fdopen(os.open(fpath, os.O_NONBLOCK | open_mode), fmode)
 
 def send_thread(fifo):
     global sock_open
@@ -56,11 +62,12 @@ def main():
     os.remove(fifo_out_path)
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
+    print("Initializing playback stream...")
     process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", "audio_out"])
-    fifo_in = open(fifo_in_path, "rb")
-
-    fifo_out = open(fifo_out_path, "wb")
-    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", "audio_in", "2>/dev/null"])
+    fifo_in = open(fifo_out_path, "wb")
+    print("Initializing input stream...")
+    fifo_out = os.fdopen(os.open(fifo_in_path, os.O_RDONLY|os.O_NONBLOCK))
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", "audio_in"])
     print("Connecting to host")
     sock.connect((HOST, PORT))
     print("Connected")
