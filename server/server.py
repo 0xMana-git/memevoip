@@ -104,8 +104,9 @@ def worker_send(conn, addr):
     global muxout_buf
     global muxout_buffer_ready
     while True:
-        while(not muxout_buffer_ready):
+        while(not muxout_buffer_ready) or client_mux_syncset[addr]:
             time.sleep(0.005)
+            
         conn.send(muxout_buf)
         #print("sent data to " + addr)
         client_mux_syncset[addr] = True
