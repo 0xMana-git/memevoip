@@ -8,6 +8,8 @@ import subprocess
 import hashlib
 import utils
 import cfg
+import sys
+import signal
 
 HOST = "0.0.0.0"
 PORT = 14880
@@ -64,7 +66,7 @@ def start_mux():
         command += [
         "-filter_complex",
         f"amerge=inputs={len(clients_lsdir)}",
-        ],
+        ]
     #audio channel
     command += ["-ac", "1"]
     #sample rate
@@ -158,6 +160,13 @@ def muxer_init():
     mux_thread = threading.Thread(target=muxer_proc)
     mux_thread.start()
 
+
+def handle_int(sig, frame):
+    sock_open = False
+    print("Exiting...")
+    sys.exit(0)
+
+signal.signal(signal.SIGINT, handle_int)
 
 if __name__ == "__main__":
     server.bind((HOST, PORT))
