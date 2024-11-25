@@ -16,9 +16,8 @@ logger = logging.getLogger(__name__)
 pipes_path = cfg.fifo_pipes_root + "client_pipes/"
 fifo_in_path = pipes_path + "audio_in"
 fifo_out_path = pipes_path + "audio_out"
-fifo_in = None
-fifo_out = None
-sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+
+
 
 HOST, PORT = "mana.kyun.li", 14880
 pipe_paths = "pipes/"
@@ -26,8 +25,11 @@ pipe_paths = "pipes/"
 
 muxout_path = "muxed_out"
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
+sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock = context.wrap_socket(sock_raw)
-sock_open = True
+sock_open = False
+fifo_in = None
+fifo_out = None
 
 def send_thread(fifo):
     global sock_open
@@ -58,6 +60,15 @@ def main():
     global process_handle_record
     global fifo_in
     global fifo_out
+    global sock_open
+    global sock
+    global sock_raw
+    sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+    sock = context.wrap_socket(sock_raw)
+    sock_open = False
+    fifo_in = None
+    fifo_out = None
+
     shutil.rmtree(pipes_path, ignore_errors=True)
     os.makedirs(pipes_path, exist_ok=True)
     os.mkfifo(fifo_in_path)
@@ -98,4 +109,10 @@ def handle_int(sig, frame):
 signal.signal(signal.SIGINT, handle_int)
 
 if __name__ == "__main__":
-    main()
+    while True:
+        try:
+            main()
+        except:
+            pass
+        print("Retrying in 1s")
+        time.sleep(1)

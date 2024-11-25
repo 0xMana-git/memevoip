@@ -37,9 +37,12 @@ client_recv_fifos = {}
 recv_in_ready = False
 
 
+class Client:
+    def __init__(self, conn : ssl.SSLSocket, addr):
+        self.addr_key = utils.make_addr_key(addr)
+        self.conn = conn
 
-def make_addr_key(addr): 
-    return str(addr).replace("'", "_").replace(" ", "_").replace(",", "_").replace("(", "_").replace(")", "_")
+
 
 def muxer_loop(out_pipe):
     global muxout_buf
@@ -176,7 +179,7 @@ if __name__ == "__main__":
     print("Listening...")
     while True:
         connection, client_address = server.accept()
-        worker_init(connection, make_addr_key(client_address))
+        worker_init(connection, utils.make_addr_key(client_address))
         if not muxer_did_init:
             muxer_init()
             muxer_did_init = True
