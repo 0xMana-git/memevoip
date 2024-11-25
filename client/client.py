@@ -33,7 +33,7 @@ def send_thread(fifo):
     while sock_open:
         buffer_send = fifo.read(buffer_size)
         sock.send(buffer_send)
-        print("sent bufsize")
+        #print("sent bufsize")
 def recv_thread(fifo):
     global sock_open
     while sock_open:
@@ -46,6 +46,10 @@ def recv_thread(fifo):
         print("recv bufsize")
 
 def main():
+    # os.remove(fifo_in_path)
+    # os.remove(fifo_out_path)
+    # os.mkfifo(fifo_in_path)
+    # os.mkfifo(fifo_out_path)
     fifo_in = open(fifo_in_path, "rb")
     fifo_out = open(fifo_out_path, "wb")
     print("Connecting to host")

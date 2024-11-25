@@ -82,7 +82,7 @@ def clients_ready():
     return True
 def wait_client_mux():
     while not clients_ready():
-        time.sleep(0.01)
+        time.sleep(0.005)
     for k in client_mux_syncset.keys():
         client_mux_syncset[k] = False
     
@@ -105,8 +105,9 @@ def worker_send(conn, addr):
     global muxout_buffer_ready
     while True:
         while(not muxout_buffer_ready):
-            time.sleep(0.01)
+            time.sleep(0.005)
         conn.send(muxout_buf)
+        print("sent data to " + addr)
         client_mux_syncset[addr] = True
 
 def worker_recv(conn, addr):
