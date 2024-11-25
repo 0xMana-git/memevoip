@@ -1,3 +1,4 @@
+from __future__ import annotations
 import socket
 import ssl
 import threading
@@ -10,7 +11,7 @@ import utils
 import cfg
 import sys
 import signal
-from __future__ import annotations
+
 import _io
 HOST = "0.0.0.0"
 PORT = 14880
