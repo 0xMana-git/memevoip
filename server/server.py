@@ -48,11 +48,14 @@ def worker_send(conn, addr):
     client_mux_syncset[addr] = True
 
 def worker_recv(conn, addr, fifo_recv):
+    global client_recv_fifos
     data = conn.read(buffer_size)
     #send data to fifo
+    print(client_recv_fifos)
     client_recv_fifos[addr].write(data)
     
 def worker_init(conn, addr):
+    global client_recv_fifos
     #add client
     print("new client: " + addr)
     client_mux_syncset[addr] = True
