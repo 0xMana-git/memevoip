@@ -45,6 +45,8 @@ def muxer_loop(out_pipe):
 
 def start_mux():
     command = ["ffmpeg", "-y",]
+    print("5 seconds until mux process starts")
+    time.sleep(5)
     #iterate all clients
     clients_lsdir = os.listdir(pipes_path)
     clients_lsdir.remove(muxout_path)
@@ -58,8 +60,7 @@ def start_mux():
         f"amerge=inputs={len(clients_lsdir)}",
         "-ac", "2"]
     command += ["-f", "flac", pipes_path + muxout_path]
-    print("5 seconds until mux process starts")
-    time.sleep(5)
+    
     print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
     print(command)
