@@ -12,7 +12,8 @@ import time
 logger = logging.getLogger(__name__)
 fifo_in_path = "audio_in"
 fifo_out_path = "audio_out"
-
+fifo_in = None
+fifo_out = None
 sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock_raw.settimeout(10)
 
@@ -39,7 +40,9 @@ def mkfifo(fpath, open_mode, do_open=True):
 def send_thread(fifo):
     global sock_open
     while sock_open:
-        buffer_send = fifo.read(buffer_size)
+        buffer_send = None
+        while buffer_send == None:
+            buffer_send = fifo.read(buffer_size)
         sock.send(buffer_send)
         #print("sent bufsize")
 
@@ -56,22 +59,27 @@ def recv_thread(fifo):
         fifo.write(buffer_recv)
         #print("recv bufsize")
 
+
+    
 def main():
     global process_handle_playback
     global process_handle_record
+    global fifo_in
+    global fifo_out
     utils.remove_silent(fifo_in_path)
     utils.remove_silent(fifo_out_path)
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
     print("Initializing playback stream...")
     process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", fifo_out_path])
-    time.sleep(0.01)
-    fifo_out = os.fdopen(os.open(fifo_out_path, os.O_WRONLY|os.O_NONBLOCK), "wb")
+    fifo_out = os.fdopen(os.open(fifo_out_path, os.O_WRONLY), "wb")
     print("Initializing input stream...")
-    fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY|os.O_NONBLOCK), "rb")
-    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "2", "-i", "hw:0", "-f", "wav", fifo_in_path],
-    stdout=subprocess.DEVNULL,
-    stderr=subprocess.DEVNULL)
+     
+    process_handle_record = subprocess.Popen(["ffmpeg", "-y", "-f", "pulse", "-sample_rate", "44100", "-channels", "1", "-i", "hw:0", "-f", "wav", fifo_in_path],
+    #stdout=subprocess.DEVNULL,
+    #stderr=subprocess.DEVNULL
+    )
+    fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY), "rb")
     print("Connecting to host")
     sock.connect((HOST, PORT))
     print("Connected")
