@@ -67,5 +67,5 @@ if __name__ == "__main__":
 
     while True:
         connection, client_address = server.accept()
-        worker_init(connection, client_address)
+        worker_init(connection, str(client_address))
 

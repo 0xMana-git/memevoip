@@ -29,6 +29,9 @@ def send_thread(fifo):
 def recv_thread(fifo):
     while True:
         buffer_recv = sock.recv(buffer_size)
+        if not data:
+            print("EOF reached")
+            return
         fifo.write(buffer_recv)
         print("recv bufsize")
 
