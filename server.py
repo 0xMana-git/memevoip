@@ -7,6 +7,7 @@ import shutil
 import subprocess
 import hashlib
 import utils
+import cfg
 
 HOST = "0.0.0.0"
 PORT = 14880
@@ -18,8 +19,8 @@ pipes_path = "pipes/"
 key_base = "/etc/letsencrypt/live/mana.kyun.li"
 keyfile = key_base + "/privkey.pem"
 certfile = key_base + "/fullchain.pem"
-#4kb
-buffer_size = 1024 * 4
+
+
 muxout_path = "muxed_out"
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 context.load_cert_chain(certfile, keyfile)
@@ -43,7 +44,7 @@ def muxer_loop(out_pipe):
     global muxout_buffer_ready
     muxout_buffer_ready = False
     #print("Muxing")
-    muxout_buf = out_pipe.read(buffer_size)
+    muxout_buf = out_pipe.read(cfg.buffer_size)
     #print("buffer ready")
     muxout_buffer_ready = True
 
@@ -125,7 +126,7 @@ def worker_recv(conn, addr):
     client_recv_fifos[addr] = open(pipes_path + addr, "wb")
 
     while True:
-        data = conn.read(buffer_size)
+        data = conn.read(cfg.buffer_size)
         if not data:
             return
         #send data to fifo

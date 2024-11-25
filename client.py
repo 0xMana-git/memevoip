@@ -8,6 +8,7 @@ import subprocess
 import sys
 import utils
 import time
+import cfg
 
 logger = logging.getLogger(__name__)
 fifo_in_path = "audio_in"
@@ -18,8 +19,8 @@ sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
 HOST, PORT = "mana.kyun.li", 14880
 pipe_paths = "pipes/"
-#4kb
-buffer_size = 1024 * 4
+
+
 muxout_path = "muxed_out"
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 sock = context.wrap_socket(sock_raw)
@@ -30,7 +31,7 @@ def send_thread(fifo):
     while sock_open:
         buffer_send = None
         while buffer_send == None:
-            buffer_send = fifo.read(buffer_size)
+            buffer_send = fifo.read(cfg.buffer_size)
         sock.send(buffer_send)
         #print("sent bufsize")
 
@@ -39,7 +40,7 @@ process_handle_record = None
 def recv_thread(fifo):
     global sock_open
     while sock_open:
-        buffer_recv = sock.recv(buffer_size)
+        buffer_recv = sock.recv(cfg.buffer_size)
         if not buffer_recv:
             sock_open = False
             print("EOF reached")
