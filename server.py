@@ -56,7 +56,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     command += ["-ar", "44100"]
     #sample format
     #command += ["-sample-fmt", "s16"]
-    command += ["-f", "wav", base_path + muxout_path]
+    command += ["-f", "wav", muxout_path]
     
     print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
