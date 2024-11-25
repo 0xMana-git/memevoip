@@ -142,7 +142,7 @@ def muxer_proc():
 
     start_mux(clients_lsdir, pipes_path)
     #iterate all clients
-    
+    print("Mux started")
     out_pipe = open(pipes_path + muxout_path, "rb")
     while True:
         muxer_loop(out_pipe)
