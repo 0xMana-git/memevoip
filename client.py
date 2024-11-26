@@ -36,9 +36,7 @@ fifo_out = None
 def send_thread(fifo):
     global sock_open
     while sock_open:
-        buffer_send = None
-        while buffer_send == None:
-            buffer_send = fifo.read(cfg.buffer_size)
+        buffer_send = fifo.read(cfg.buffer_size)
         sock.send(buffer_send)
         #print("sent bufsize")
 
@@ -77,7 +75,7 @@ def main():
     os.mkfifo(fifo_out_path)
     print("Initializing playback stream...")
     process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", fifo_out_path])
-    fifo_out = os.fdopen(os.open(fifo_out_path, os.O_WRONLY), "wb")
+    fifo_out = utils.open_with_flag(fifo_out_path, os.O_WRONLY, "wb")
     
     print("Connecting to host")
     sock.connect((HOST, PORT))
@@ -90,7 +88,7 @@ def main():
         #stdout=subprocess.DEVNULL,
         #stderr=subprocess.DEVNULL
         )
-    fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY), "rb")
+    fifo_in = utils.open_with_flag(fifo_in_path, os.O_RDONLY, "rb")
     
     st = threading.Thread(target=send_thread, args=(fifo_in,))
     rt = threading.Thread(target=recv_thread, args=(fifo_out,))
