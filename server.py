@@ -128,11 +128,11 @@ class Client:
         
     def open_pipes(self):
         #pipe for other clients
-        for fifo_path in self.sender_pipe_paths.values():
+        for sender_key, fifo_path in self.sender_pipe_paths.items():
             #open sender pipes
             #we need rw in order to not have conflicts
             #but this is write only, ffmpeg will read from this
-            utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
+            self.sender_pipes[sender_key] = utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
         #pipe for muxout
         self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
     
