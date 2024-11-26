@@ -85,8 +85,8 @@ def main():
     process_handle_record = subprocess.Popen(["ffmpeg", "-y"] + 
                                              cfg.ffmpeg_client_in + 
                                              ["-ar", "44100", "-ac", "2", "-f", "wav", fifo_in_path],
-        #stdout=subprocess.DEVNULL,
-        #stderr=subprocess.DEVNULL
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL
         )
     fifo_in = utils.open_with_flag(fifo_in_path, os.O_RDONLY, "rb")
     
