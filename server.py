@@ -25,7 +25,7 @@ keyfile = key_base + "/privkey.pem"
 certfile = key_base + "/fullchain.pem"
 
 
-muxout_path = "muxed_out"
+MUXOUT_PATH = "muxed_out"
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 context.load_cert_chain(certfile, keyfile)
 server = context.wrap_socket(
@@ -64,7 +64,10 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
     print(command)
-    subprocess.Popen(command)
+    subprocess.Popen(command,
+        stderr=subprocess.DEVNULL,
+        stdout=subprocess.DEVNULL
+                     )
 
 
 g_all_clients : dict[str, Client]= {}
@@ -74,14 +77,22 @@ class Client:
         self.addr_key = addr_key
         self.socket = conn
         self.client_pipe_root = pipes_path + self.addr_key + "/"
-        os.makedirs(self.client_pipe_root, exist_ok=True)
-        self.send_ready = False
-        self.muxout_buf = b""
-        self.client_pipes : dict[str, _io.BufferedWriter] = {}
-        self.muxout_pipe : _io.BufferedReader = None
+        self.send_ready : bool = False
+        self.muxout_buf : bytes = b""
+        self.muxout_path : str = self.client_pipe_root + MUXOUT_PATH
         self.pipe_broken = False
+
+        os.makedirs(self.client_pipe_root, exist_ok=True)
+
+
+        #NEEDS INIT
+        self.recipient_pipes : dict[str, _io.BufferedWriter] = {}
+        self.recipient_pipe_paths : dict[str, str] = {}
+        self.muxout_pipe : _io.BufferedReader = None
+        
+        
     def write_buffer(self, client_addr, buffer : bytes):
-        self.client_pipes[client_addr].write(buffer)
+        self.recipient_pipes[client_addr].write(buffer)
     
     def on_recv(self, buffer : bytes):
         global g_all_clients
@@ -101,108 +112,41 @@ class Client:
                 self.pipe_broken = True
             self.on_recv(data)
         
-    def reload_mux():
-        pass
+    def reload_mux(self):
+        start_mux(self.recipient_pipes.keys(), self.client_pipe_root, self.muxout_path)
     
-
- 
-
-
-
-
-
-def muxer_loop(out_pipe):
-    global muxout_buf
-    global muxout_buffer_ready
-    muxout_buffer_ready = False
-    muxout_buf = out_pipe.read(cfg.buffer_size)
-    muxout_buffer_ready = True
-
-
-def clients_ready():
-    for v in client_mux_syncset.values():
-        if not v:
-            return False
-    return True
-def wait_client_mux():
-    while not clients_ready():
-        time.sleep(0.005)
-    muxout_buffer_ready = False
-    for k in client_mux_syncset.keys():
-        client_mux_syncset[k] = False
-    
-def muxer_proc():
-    #init
-    #do not open here, since this will block until
-    #write happens
-
-    mux_out_full = pipes_path + muxout_path
-    utils.mkfifo(mux_out_full, os.O_RDONLY, False)
-
-    print(f"{cfg.server_sleep_time} seconds until mux process starts")
-    time.sleep(cfg.server_sleep_time)
-
-    clients_lsdir = os.listdir(pipes_path)
-    clients_lsdir.remove(muxout_path)
-    print(f"Clients: {str(clients_lsdir)}")
-
-    
-    start_mux(clients_lsdir, pipes_path, mux_out_full)
-
-    print(f"opening {mux_out_full}")
-    out_pipe = open(mux_out_full, "rb")
-    print("opened")
-    while True:
-        muxer_loop(out_pipe)
-        wait_client_mux()
-
-
-
-def worker_send(conn, addr):
-    global muxout_buf
-    global muxout_buffer_ready
-    while True:
-        while ((not muxout_buffer_ready) or client_mux_syncset[addr]):
-            time.sleep(0.005)
+    def load_clients(self):
+        for client in g_all_clients.values():
+            if client.addr_key == self.addr_key:
+                continue
+            self.recipient_pipe_paths[client.addr_key] = self.client_pipe_root + client.addr_key
             
-        conn.send(muxout_buf)
-        client_mux_syncset[addr] = True
-        #print("send data with hash " + hashlib.sha256(muxout_buf).hexdigest())
         
-
-def worker_recv(conn, addr):
-    global client_recv_fifos
-    client_recv_fifos[addr] = utils.open_with_flag(pipes_path + addr, os.O_RDWR, "wb")
-
-    while True:
-        data = conn.read(cfg.buffer_size)
-        if not data:
-            return
-        #send data to fifo
-        client_recv_fifos[addr].write(data)
+        
+    def open_pipes(self):
+        #pipe for other clients
+        for fifo_path in self.recipient_pipe_paths.values():
+            #open recipient pipes
+            #we need rw in order to not have conflicts
+            #but this is write only, ffmpeg will read from this
+            utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
+        #pipe for muxout
+        self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
     
-def worker_init(conn : ssl.SSLSocket, addr):
-    global client_recv_fifos
-    global recv_in_ready
-    #deny new clients
-    if(recv_in_ready):
-        conn.close()
-        return
-    #add client
-    print("new client: " + addr)
-    client_mux_syncset[addr] = True
-    utils.mkfifo(pipes_path + addr, os.O_WRONLY, False)
-    #TODO: thread handler
-    send_thread = threading.Thread(target=worker_send, args=(conn, addr))
-    recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))
-    send_thread.start()
-    recv_thread.start()
-    print("client initialized")
+    def start_threads(self) -> list:
+        recv = threading.Thread(target=self.recv_loop)
+        send = threading.Thread(target=self.send_loop)
+        recv.start()
+        send.start()
+        return [recv, send]
+            
+    def init_first(self):
+        self.load_clients()
+        self.open_pipes()
 
-def muxer_init():
-    mux_thread = threading.Thread(target=muxer_proc)
-    mux_thread.start()
-
+    def init_final(self):
+        self.reload_mux()
+        self.start_threads()
 
 def handle_int(sig, frame):
     sock_open = False
@@ -218,10 +162,19 @@ if __name__ == "__main__":
     os.makedirs(pipes_path, exist_ok=True)
     muxer_did_init = False
     print("Listening...")
-    while True:
+    cur_time = time.time()
+    while cur_time < time.time() + cfg.server_sleep_time:
         connection, client_address = server.accept()
-        worker_init(connection, utils.make_addr_key(client_address))
-        if not muxer_did_init:
-            muxer_init()
-            muxer_did_init = True
+        addr_key = utils.make_addr_key(client_address)
+        print(f"New client: {addr_key}")
+        g_all_clients[addr_key] = Client(connection, addr_key)
+    print("Now no longer accepting new connections. initializing...")
+    for v in g_all_clients.values():
+        v.init_first()
+    for v in g_all_clients.values():
+        v.init_final()
+    
+    print("Finished initialization of clients.")
+    while True:
+        pass
 

@@ -8,18 +8,14 @@ def remove_silent(filename):
             raise # re-raise exception if a different error occurred
 
 
-
-def mkfifo(fpath, open_mode, do_open=True):
+def open_with_flag(fpath, os_flag, fd_open_flag):
+    return os.fdopen(os.open(fpath, os_flag), fd_open_flag)
+def mkfifo_open(fpath, os_flag, fd_open_flag):
     os.mkfifo(fpath, 0o600)
-    fmode = "rb"
-    if(open_mode == os.O_WRONLY):
-        fmode = "wb"
-    if do_open:
-        return os.fdopen(os.open(fpath, os.O_NONBLOCK | open_mode), fmode)
+    return open_with_flag(fpath, os_flag, fd_open_flag)
     
 
-def open_with_flag(fpath, os_flag, fd_open_flag):
-    return os.fdopen(os.open(fpath, os_flag), fd_open_flag)\
+
 
 def make_addr_key(addr): 
     return str(addr).replace("'", "_").replace(" ", "_").replace(",", "_").replace("(", "_").replace(")", "_")
