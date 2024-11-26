@@ -33,9 +33,6 @@ server = context.wrap_socket(
 )
 muxout_buf = b""
 muxout_buffer_ready = False
-client_muxes = {}
-client_mux_syncset = {}
-client_recv_fifos = {}
 recv_in_ready = False
 
 
@@ -77,8 +74,6 @@ class Client:
         self.addr_key = addr_key
         self.socket = conn
         self.client_pipe_root = pipes_path + self.addr_key + "/"
-        self.send_ready : bool = False
-        self.muxout_buf : bytes = b""
         self.muxout_path : str = self.client_pipe_root + MUXOUT_PATH
         self.pipe_broken = False
 
@@ -104,12 +99,12 @@ class Client:
             client.write_buffer(self.addr_key, buffer)
     
     def send_loop(self):
-        while True:
+        while not self.pipe_broken:
             data = self.muxout_pipe.read(cfg.buffer_size)
             self.socket.send(data)
     
     def recv_loop(self):
-        while True:
+        while not self.pipe_broken:
             data = self.socket.recv(cfg.buffer_size)
             if not data:
                 self.pipe_broken = True
