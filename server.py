@@ -136,6 +136,7 @@ def muxer_proc():
     #write happens
 
     mux_out_full = pipes_path + muxout_path
+    utils.mkfifo(mux_out_full, os.O_RDONLY, False)
 
     print(f"{cfg.server_sleep_time} seconds until mux process starts")
     time.sleep(cfg.server_sleep_time)
@@ -144,7 +145,7 @@ def muxer_proc():
     clients_lsdir.remove(muxout_path)
     print(f"Clients: {str(clients_lsdir)}")
 
-    utils.mkfifo(mux_out_full, os.O_RDONLY, False)
+    
     start_mux(clients_lsdir, pipes_path, mux_out_full)
 
     print(f"opening {mux_out_full}")
