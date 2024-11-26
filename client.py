@@ -29,6 +29,7 @@ g_do_exit = False
 context = ssl.SSLContext(ssl.PROTOCOL_TLSv1_2)
 sock_raw = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 sock = context.wrap_socket(sock_raw)
+sock.settimeout(5)
 sock_open = False
 fifo_in = None
 fifo_out = None
