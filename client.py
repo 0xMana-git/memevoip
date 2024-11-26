@@ -126,7 +126,7 @@ if __name__ == "__main__":
         try:
             main()
         except:
-            continue
+            pass
         if g_do_exit:
             break
         close_resources()
