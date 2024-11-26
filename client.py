@@ -74,7 +74,7 @@ def main():
     os.mkfifo(fifo_in_path)
     os.mkfifo(fifo_out_path)
     print("Initializing playback stream...")
-    process_handle_playback = subprocess.Popen(["aplay", "-f", "cd", fifo_out_path])
+    process_handle_playback = subprocess.Popen(cfg.playback_command + [fifo_out_path])
     fifo_out = utils.open_with_flag(fifo_out_path, os.O_WRONLY, "wb")
     
     print("Connecting to host")
