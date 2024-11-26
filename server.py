@@ -166,7 +166,7 @@ def worker_send(conn, addr):
 
 def worker_recv(conn, addr):
     global client_recv_fifos
-    client_recv_fifos[addr] = open(pipes_path + addr, "r+b")
+    client_recv_fifos[addr] = utils.open_with_flag(pipes_path + addr, os.O_RDWR, "wb")
 
     while True:
         data = conn.read(cfg.buffer_size)

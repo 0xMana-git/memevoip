@@ -17,5 +17,9 @@ def mkfifo(fpath, open_mode, do_open=True):
     if do_open:
         return os.fdopen(os.open(fpath, os.O_NONBLOCK | open_mode), fmode)
     
+
+def open_with_flag(fpath, os_flag, fd_open_flag):
+    return os.fdopen(os.open(fpath, os_flag), fd_open_flag)\
+
 def make_addr_key(addr): 
     return str(addr).replace("'", "_").replace(" ", "_").replace(",", "_").replace("(", "_").replace(")", "_")
