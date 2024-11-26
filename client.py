@@ -86,7 +86,7 @@ def main():
     print("Initializing input stream...")
     process_handle_record = subprocess.Popen(["ffmpeg", "-y"] + 
                                              cfg.ffmpeg_client_in + 
-                                             ["-ac", "44100", "-ac", "2", "-f", "wav", fifo_in_path],
+                                             ["-ar", "44100", "-ac", "2", "-f", "wav", fifo_in_path],
         stdout=subprocess.DEVNULL,
         stderr=subprocess.DEVNULL
         )

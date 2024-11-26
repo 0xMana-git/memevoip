@@ -44,7 +44,8 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     command = ["ffmpeg", "-y"]
     
     #sample rate in
-    command += ["-ar", "44100"]
+    command += ["-sample_rate", "44100"]
+    command += ["-f", "s16le"]
     #audio channel in
     command += ["-ac", "2"]
     for client_pipe in clients:
