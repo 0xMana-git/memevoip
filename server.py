@@ -41,7 +41,7 @@ recv_in_ready = False
 
 
 def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
-    command = ["ffmpeg", "-y",]
+    command = ["ffmpeg", "-y"]
     
     #sample rate in
     command += ["-ar", "44100"]
@@ -51,9 +51,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
         command += ["-i", muxin_base_path + client_pipe]
 
     if len(clients) > 1:
-        command += [
-        "-filter_complex",
-        f"amerge=inputs={len(clients)}"]
+        command += ["-filter_complex",f"amerge=inputs={len(clients)}"]
     #audio channel out
     command += ["-ac", "2"]
     #sample rate out
@@ -136,15 +134,17 @@ def muxer_proc():
     #init
     #do not open here, since this will block until
     #write happens
-    utils.mkfifo(pipes_path + muxout_path, os.O_RDONLY, True)
-    
+
+    mux_out_full = pipes_path + muxout_path
+
     print(f"{cfg.server_sleep_time} seconds until mux process starts")
     time.sleep(cfg.server_sleep_time)
+
     clients_lsdir = os.listdir(pipes_path)
     clients_lsdir.remove(muxout_path)
     print(f"Clients: {str(clients_lsdir)}")
-    mux_out_full = pipes_path + muxout_path
 
+    utils.mkfifo(mux_out_full, os.O_RDONLY, False)
     start_mux(clients_lsdir, pipes_path, mux_out_full)
 
     print(f"opening {mux_out_full}")
