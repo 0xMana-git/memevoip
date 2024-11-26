@@ -70,8 +70,8 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
                      )
 
 
-g_all_clients : dict[str, Client]= {}
-
+g_all_clients : dict[str, Client] = {}
+g_accept_conns : bool = True
 class Client:
     def __init__(self, conn : ssl.SSLSocket, addr_key : str):
         self.addr_key = addr_key
@@ -155,6 +155,16 @@ def handle_int(sig, frame):
 
 signal.signal(signal.SIGINT, handle_int)
 
+
+def accept_conns():
+    while True:
+        connection, client_address = server.accept()
+        if not g_accept_conns:
+            connection.close()
+            return
+        addr_key = utils.make_addr_key(client_address)
+        print(f"New client: {addr_key}")
+        g_all_clients[addr_key] = Client(connection, addr_key)
 if __name__ == "__main__":
     server.bind((HOST, PORT))
     server.listen(0)
@@ -162,12 +172,11 @@ if __name__ == "__main__":
     os.makedirs(pipes_path, exist_ok=True)
     muxer_did_init = False
     print("Listening...")
-    cur_time = time.time()
-    while cur_time < time.time() + cfg.server_sleep_time:
-        connection, client_address = server.accept()
-        addr_key = utils.make_addr_key(client_address)
-        print(f"New client: {addr_key}")
-        g_all_clients[addr_key] = Client(connection, addr_key)
+
+    accept_thread = threading.Thread(target=accept_conns)
+    accept_thread.start()
+    time.sleep(cfg.server_sleep_time)
+    g_accept_conns = False
     print("Now no longer accepting new connections. initializing...")
     for v in g_all_clients.values():
         v.init_first()
