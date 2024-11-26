@@ -43,6 +43,10 @@ recv_in_ready = False
 def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     command = ["ffmpeg", "-y",]
     
+    #sample rate in
+    command += ["-ar", "44100"]
+    #audio channel in
+    command += ["-ac", "2"]
     for client_pipe in clients:
         command += ["-i", muxin_base_path + client_pipe]
 
@@ -50,9 +54,9 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
         command += [
         "-filter_complex",
         f"amerge=inputs={len(clients)}"]
-    #audio channel
+    #audio channel out
     command += ["-ac", "2"]
-    #sample rate
+    #sample rate out
     command += ["-ar", "44100"]
     #sample format
     #command += ["-sample-fmt", "s16"]
