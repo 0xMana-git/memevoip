@@ -86,18 +86,21 @@ class Client:
 
 
         #NEEDS INIT
-        self.recipient_pipes : dict[str, _io.BufferedWriter] = {}
-        self.recipient_pipe_paths : dict[str, str] = {}
+        self.sender_pipes : dict[str, _io.BufferedWriter] = {}
+        self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
         
         
     def write_buffer(self, client_addr, buffer : bytes):
-        self.recipient_pipes[client_addr].write(buffer)
+
+        self.sender_pipes[client_addr].write(buffer)
     
     def on_recv(self, buffer : bytes):
         global g_all_clients
         #echo to all buffers
         for client in g_all_clients.values():
+            if client.addr_key == self.addr_key:
+                continue
             client.write_buffer(self.addr_key, buffer)
     
     def send_loop(self):
@@ -113,20 +116,20 @@ class Client:
             self.on_recv(data)
         
     def reload_mux(self):
-        start_mux(self.recipient_pipes.keys(), self.client_pipe_root, self.muxout_path)
+        start_mux(self.sender_pipes.keys(), self.client_pipe_root, self.muxout_path)
     
     def load_clients(self):
         for client in g_all_clients.values():
             if client.addr_key == self.addr_key:
                 continue
-            self.recipient_pipe_paths[client.addr_key] = self.client_pipe_root + client.addr_key
+            self.sender_pipe_paths[client.addr_key] = self.client_pipe_root + client.addr_key
             
         
         
     def open_pipes(self):
         #pipe for other clients
-        for fifo_path in self.recipient_pipe_paths.values():
-            #open recipient pipes
+        for fifo_path in self.sender_pipe_paths.values():
+            #open sender pipes
             #we need rw in order to not have conflicts
             #but this is write only, ffmpeg will read from this
             utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
