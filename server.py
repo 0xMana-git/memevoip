@@ -179,10 +179,6 @@ def worker_recv(conn, addr):
         if not data:
             return
         #send data to fifo
-        #print(client_recv_fifos)
-        #print("Writing to muxer")
-        
-        
         client_recv_fifos[addr].write(data)
     
 def worker_init(conn : ssl.SSLSocket, addr):
@@ -195,7 +191,7 @@ def worker_init(conn : ssl.SSLSocket, addr):
     #add client
     print("new client: " + addr)
     client_mux_syncset[addr] = True
-    client_recv_fifos[addr] = utils.mkfifo(pipes_path + addr, os.O_WRONLY, False)
+    utils.mkfifo(pipes_path + addr, os.O_WRONLY, False)
     #TODO: thread handler
     send_thread = threading.Thread(target=worker_send, args=(conn, addr))
     recv_thread = threading.Thread(target=worker_recv, args=(conn, addr))

@@ -87,8 +87,8 @@ def main():
     process_handle_record = subprocess.Popen(["ffmpeg", "-y"] + 
                                              cfg.ffmpeg_client_in + 
                                              ["-ar", "44100", "-ac", "2", "-f", "wav", fifo_in_path],
-        stdout=subprocess.DEVNULL,
-        stderr=subprocess.DEVNULL
+        #stdout=subprocess.DEVNULL,
+        #stderr=subprocess.DEVNULL
         )
     fifo_in = os.fdopen(os.open(fifo_in_path, os.O_RDONLY), "rb")
     
@@ -102,12 +102,16 @@ def main():
 
 def close_resources():
     global sock_open
+    global process_handle_record
+    global process_handle_playback
     sock.close()
     sock_open = False
     if process_handle_record != None:
         process_handle_record.kill()
     if process_handle_playback != None:
         process_handle_playback.kill()
+    process_handle_playback = None
+    process_handle_record = None
 
 def handle_int(sig, frame):
     global g_do_exit
