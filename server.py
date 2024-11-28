@@ -134,11 +134,7 @@ class Client:
         self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
     
     def start_threads(self) -> list:
-        recv = threading.Thread(target=self.recv_loop)
-        send = threading.Thread(target=self.send_loop)
-        recv.start()
-        send.start()
-        return [recv, send]
+        return [utils.start_daemon_thread(self.recv_loop), utils.start_daemon_thread(self.send_loop)]
             
     def init_first(self):
         self.load_clients()
@@ -182,8 +178,7 @@ def main():
     os.makedirs(pipes_path, exist_ok=True)
     print("Listening...")
 
-    accept_thread = threading.Thread(target=accept_conns)
-    accept_thread.start()
+    accept_thread = utils.start_daemon_thread(accept_conns)
     while not g_first_conn:
         time.sleep(0.1)
     time.sleep(cfg.server_sleep_time)

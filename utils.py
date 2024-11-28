@@ -1,5 +1,5 @@
 import os, errno
-
+import threading
 def remove_silent(filename):
     try:
         os.remove(filename)
@@ -14,6 +14,12 @@ def mkfifo_open(fpath, os_flag, fd_open_flag):
     os.mkfifo(fpath, 0o600)
     return open_with_flag(fpath, os_flag, fd_open_flag)
     
+
+def start_daemon_thread(target, args=()):
+    t = threading.Thread(target=target, args=args)
+    t.daemon = True
+    t.start()
+    return t
 
 
 
