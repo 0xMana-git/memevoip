@@ -185,6 +185,7 @@ class Client:
         return [utils.start_daemon_thread(self.recv_loop), utils.start_daemon_thread(self.send_loop)]
             
     def init_first(self):
+        self.test_client()
         self.load_clients()
         self.open_pipes()
 
