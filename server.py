@@ -128,7 +128,7 @@ class Client:
                 continue
             if not client.is_valid_sender:
                 continue
-            self.recievers.add(client.addr_key)
+            self.recievers.add(client)
             self.sender_pipe_paths[client.addr_key] = self.client_pipe_root + client.addr_key
             
         
