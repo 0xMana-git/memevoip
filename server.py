@@ -200,7 +200,6 @@ class Client:
         return [utils.start_daemon_thread(self.recv_loop), utils.start_daemon_thread(self.send_loop)]
             
     def init_first(self):
-        self.test_client()
         self.load_clients()
         self.open_pipes()
 
@@ -248,6 +247,13 @@ def main():
     time.sleep(cfg.server_sleep_time)
     g_accept_conns = False
     print("Now no longer accepting new connections. initializing...")
+    test_threads = []
+    for v in g_all_clients.values():
+        t = threading.Thread(v.test_client())
+        test_threads.append(t)
+        t.start()
+    for t in test_threads:
+        t.join()
     for v in g_all_clients.values():
         v.init_first()
     for v in g_all_clients.values():
