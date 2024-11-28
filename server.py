@@ -121,12 +121,17 @@ class Client:
         self.in_test_pipe.write(data)
     
     def test_client(self):
+        #open test
+        self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "rb")
         #write to test
         self.write_to_test_buf()
         #ffprobe test
         out, err, rcode = probe_file(self.in_test_path)
         if rcode != 0:
             self.is_valid_sender = False
+        #close test
+        self.in_test_pipe.close()
+        
 
     
     def on_recv(self, buffer : bytes):
@@ -174,7 +179,7 @@ class Client:
             self.sender_pipes[sender_key] = utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
         #pipe for muxout
         self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
-        self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "rb")
+        
     
     def start_threads(self) -> list:
         return [utils.start_daemon_thread(self.recv_loop), utils.start_daemon_thread(self.send_loop)]
