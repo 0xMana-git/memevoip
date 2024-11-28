@@ -48,6 +48,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     #command += ["-ac", "2"]
     for client_pipe in clients:
         command += ["-i", muxin_base_path + client_pipe]
+    command += ["-af", "apad" ,"-longest"]
 
     if len(clients) > 1:
         command += ["-filter_complex",f"amerge=inputs={len(clients)}"]
