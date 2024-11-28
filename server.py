@@ -71,11 +71,11 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
 
 
 def probe_file(filename):
-    cmnd = ['ffprobe', '-show_format', '-pretty', '-loglevel', 'quiet', filename]
-    p = subprocess.Popen(cmnd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print("testing")
+    cmd = ['ffprobe', '-show_format', '-pretty', '-loglevel', 'quiet', filename]
+    p = subprocess.Popen(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     print(filename)
     out, err =  p.communicate()
-    p.wait()
     print (out)
     if err:
         print (err)
