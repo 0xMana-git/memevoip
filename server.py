@@ -132,14 +132,12 @@ class Client:
         self.test_buffer = self.socket.recv(cfg.buffer_size)
         if not self.test_buffer:
             self.pipe_broken = True
-        print(self.test_buffer)
-    
+
     def test_client(self):
         #open test
         self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "wb")
         #write to test
         self.write_to_test_buf()
-        time.sleep(100000)
         #ffprobe test
         out, err, rcode = probe_file(self.in_test_path)
         if rcode != 0:
