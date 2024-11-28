@@ -79,7 +79,7 @@ def probe_file(filename):
     print (out)
     if err:
         print (err)
-    return (out, err, ret_code)
+    return (out, err, p.returncode)
     
     
 
@@ -108,7 +108,7 @@ class Client:
         self.sender_pipes : dict[str, _io.BufferedWriter] = {}
         self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
-        self.in_test_pipe : _io.BufferedReader = None
+        self.in_test_pipe : _io.BufferedWriter = None
         
         
     def write_buffer(self, client_addr, buffer : bytes):
@@ -122,7 +122,7 @@ class Client:
     
     def test_client(self):
         #open test
-        self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "rb")
+        self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "wb")
         #write to test
         self.write_to_test_buf()
         #ffprobe test
