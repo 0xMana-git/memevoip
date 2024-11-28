@@ -53,7 +53,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     #audio channel out
     command += ["-ac", "2"]
     #sample rate out
-    command += ["-ar", "44100"]
+    command += ["-ar", "48000"]
     #sample format
     #command += ["-sample-fmt", "s16"]
     command += ["-f", "wav", muxout_path]
