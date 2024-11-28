@@ -119,6 +119,7 @@ class Client:
         self.test_buffer = self.socket.recv(cfg.buffer_size)
         if not self.test_buffer:
             self.pipe_broken = True
+        print(self.test_buffer)
         self.in_test_pipe.write(self.test_buffer)
     
     def test_client(self):
