@@ -101,7 +101,7 @@ class Client:
 
 
         #NEEDS INIT
-
+        self.test_buffer = None
         #list of clients to write to
         self.recievers : set = set()
         #other clients will write to these pipes
@@ -115,10 +115,10 @@ class Client:
         self.sender_pipes[client_addr].write(buffer)
     
     def write_to_test_buf(self):
-        data = self.socket.recv(cfg.test_buffer_size, flags=socket.MSG_PEEK)
-        if not data:
+        self.test_buffer = self.socket.recv(cfg.buffer_size)
+        if not self.test_buffer:
             self.pipe_broken = True
-        self.in_test_pipe.write(data)
+        self.in_test_pipe.write(self.test_buffer)
     
     def test_client(self):
         #open test
@@ -151,7 +151,11 @@ class Client:
     
     def recv_loop(self):
         while not self.pipe_broken:
-            data = self.socket.recv(cfg.buffer_size)
+            if self.test_buffer == None:
+                data = self.socket.recv(cfg.buffer_size)
+            else:
+                data = self.test_buffer
+                self.test_buffer = None
             if not data:
                 self.pipe_broken = True
             self.on_recv(data)
