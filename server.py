@@ -134,17 +134,12 @@ class Client:
             self.pipe_broken = True
 
     def test_client(self):
-        #open test
-        self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "wb")
         #write to test
         self.write_to_test_buf()
         #ffprobe test
-        out, err, rcode = probe_file(self.in_test_path)
+        out, err, rcode = probe_buffer(self.test_buffer)
         if rcode != 0:
             self.is_valid_sender = False
-        #close test
-        self.in_test_pipe.close()
-        
 
     
     def on_recv(self, buffer : bytes):
