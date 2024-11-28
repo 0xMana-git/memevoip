@@ -83,14 +83,12 @@ def probe_file(filename):
     return (out, err, p.returncode)
 
 def probe_buffer(buffer : bytes):
-    print("testing")
     cmd = ['ffprobe', '-show_format', '-pretty', "-"]
     p : subprocess.Popen = subprocess.Popen(cmd, stdin=subprocess.PIPE
                                             , stdout=subprocess.PIPE, stderr=subprocess.PIPE
                                             )
     p.stdin.write(buffer)
     out, err =  p.communicate()
-    print(p.returncode)
     return (out, err, p.returncode)
 
     
@@ -137,6 +135,7 @@ class Client:
         #ffprobe test
         out, err, rcode = probe_buffer(self.test_buffer)
         if rcode != 0:
+            print(f"{self.addr_key} is an invalid sender")
             self.is_valid_sender = False
 
     
