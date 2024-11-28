@@ -35,7 +35,7 @@ muxout_buf = b""
 muxout_buffer_ready = False
 recv_in_ready = False
 
-
+subprocs : list[subprocess.Popen]= []
 
 def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     command = ["ffmpeg", "-y"]
@@ -61,10 +61,12 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
     print(command)
-    subprocess.Popen(command,
+
+    p = subprocess.Popen(command,
         stderr=subprocess.DEVNULL,
         stdout=subprocess.DEVNULL
                      )
+    subprocs.append(p)
 
 
 g_all_clients : dict[str, Client] = {}
@@ -148,6 +150,8 @@ class Client:
 
 def handle_int(sig, frame):
     sock_open = False
+    for p in subprocs:
+        p.kill()
     print("Exiting...")
     sys.exit(0)
 
