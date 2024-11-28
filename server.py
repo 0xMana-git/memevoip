@@ -116,6 +116,7 @@ class Client:
         self.sender_pipes[client_addr].write(buffer)
     
     def write_to_test_buf(self):
+        print("write to test buf")
         self.test_buffer = self.socket.recv(cfg.buffer_size)
         if not self.test_buffer:
             self.pipe_broken = True
