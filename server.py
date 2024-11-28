@@ -26,6 +26,7 @@ certfile = key_base + "/fullchain.pem"
 
 
 MUXOUT_PATH = "muxed_out"
+IN_TEST_PATH = "test_in"
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 context.load_cert_chain(certfile, keyfile)
 server = context.wrap_socket(
@@ -69,6 +70,19 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     subprocs.append(p)
 
 
+def probe_file(filename):
+    cmnd = ['ffprobe', '-show_format', '-pretty', '-loglevel', 'quiet', filename]
+    p = subprocess.Popen(cmnd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    print(filename)
+    out, err =  p.communicate()
+    p.wait()
+    print (out)
+    if err:
+        print (err)
+    return (out, err, ret_code)
+    
+    
+
 g_all_clients : dict[str, Client] = {}
 g_accept_conns : bool = True
 g_first_conn : bool = False
@@ -78,6 +92,8 @@ class Client:
         self.socket = conn
         self.client_pipe_root = pipes_path + self.addr_key + "/"
         self.muxout_path : str = self.client_pipe_root + MUXOUT_PATH
+        self.in_test_path : str = self.client_pipe_root + IN_TEST_PATH
+        
         self.pipe_broken = False
         self.is_valid_sender = True
 
@@ -92,10 +108,26 @@ class Client:
         self.sender_pipes : dict[str, _io.BufferedWriter] = {}
         self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
+        self.in_test_pipe : _io.BufferedReader = None
         
         
     def write_buffer(self, client_addr, buffer : bytes):
         self.sender_pipes[client_addr].write(buffer)
+    
+    def write_to_test_buf(self):
+        data = self.socket.recv(cfg.test_buffer_size, flags=socket.MSG_PEEK)
+        if not data:
+            self.pipe_broken = True
+        self.in_test_pipe.write(data)
+    
+    def test_client(self):
+        #write to test
+        self.write_to_test_buf()
+        #ffprobe test
+        out, err, rcode = probe_file(self.in_test_path)
+        if rcode != 0:
+            self.is_valid_sender = False
+
     
     def on_recv(self, buffer : bytes):
         global g_all_clients
@@ -142,6 +174,7 @@ class Client:
             self.sender_pipes[sender_key] = utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
         #pipe for muxout
         self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
+        self.in_test_pipe = utils.mkfifo_open(self.in_test_path, os.O_RDWR, "rb")
     
     def start_threads(self) -> list:
         return [utils.start_daemon_thread(self.recv_loop), utils.start_daemon_thread(self.send_loop)]
