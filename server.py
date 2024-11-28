@@ -87,7 +87,6 @@ def probe_buffer(buffer : bytes):
     cmd = ['ffprobe', '-show_format', '-pretty', '-loglevel', 'quiet']
     p : subprocess.Popen = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
     p.stdin.write(buffer)
-    p.stdin.close()
     out, err =  p.communicate()
     print (out)
     if err:
