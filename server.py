@@ -81,7 +81,20 @@ def probe_file(filename):
         print (err)
     print(p.returncode)
     return (out, err, p.returncode)
-    
+
+def probe_buffer(buffer : bytes):
+    print("testing")
+    cmd = ['ffprobe', '-show_format', '-pretty', '-loglevel', 'quiet']
+    p : subprocess.Popen = subprocess.Popen(cmd, stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    p.stdin.write(buffer)
+    p.stdin.close()
+    out, err =  p.communicate()
+    print (out)
+    if err:
+        print (err)
+    print(p.returncode)
+    return (out, err, p.returncode)
+
     
 
 g_all_clients : dict[str, Client] = {}
@@ -116,12 +129,10 @@ class Client:
         self.sender_pipes[client_addr].write(buffer)
     
     def write_to_test_buf(self):
-        print("write to test buf")
         self.test_buffer = self.socket.recv(cfg.buffer_size)
         if not self.test_buffer:
             self.pipe_broken = True
         print(self.test_buffer)
-        self.in_test_pipe.write(self.test_buffer)
     
     def test_client(self):
         #open test
