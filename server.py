@@ -79,11 +79,16 @@ class Client:
         self.client_pipe_root = pipes_path + self.addr_key + "/"
         self.muxout_path : str = self.client_pipe_root + MUXOUT_PATH
         self.pipe_broken = False
+        self.is_valid_sender = True
 
         os.makedirs(self.client_pipe_root, exist_ok=True)
 
 
         #NEEDS INIT
+
+        #list of clients to write to
+        self.recievers : set = set()
+        #other clients will write to these pipes
         self.sender_pipes : dict[str, _io.BufferedWriter] = {}
         self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
@@ -94,8 +99,10 @@ class Client:
     
     def on_recv(self, buffer : bytes):
         global g_all_clients
+        if not self.is_valid_sender:
+            return
         #echo to all buffers
-        for client in g_all_clients.values():
+        for client in self.recievers:
             if client.addr_key == self.addr_key:
                 continue
             client.write_buffer(self.addr_key, buffer)
@@ -119,6 +126,9 @@ class Client:
         for client in g_all_clients.values():
             if client.addr_key == self.addr_key:
                 continue
+            if not client.is_valid_sender:
+                continue
+            self.recievers.add(client.addr_key)
             self.sender_pipe_paths[client.addr_key] = self.client_pipe_root + client.addr_key
             
         
