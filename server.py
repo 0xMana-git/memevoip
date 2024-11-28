@@ -79,6 +79,7 @@ def probe_file(filename):
     print (out)
     if err:
         print (err)
+    print(p.returncode)
     return (out, err, p.returncode)
     
     
