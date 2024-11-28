@@ -52,7 +52,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
 
     if len(clients) > 1:
         command += ["-filter_complex",f"amerge=inputs={len(clients)}"]
-    command += ["-af", "apad" ,"-longest"]
+    command += ["-af", "apad"]
     #audio channel out
     command += ["-ac", "2"]
     #sample rate out
@@ -61,7 +61,6 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     #command += ["-sample-fmt", "s16"]
     command += ["-f", "wav", muxout_path]
     
-    print("starting mux subproc, stopped accepting new clients(lol)")
     print("Running command: ")
     print(command)
 
