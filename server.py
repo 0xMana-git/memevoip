@@ -84,17 +84,12 @@ def probe_file(filename):
 
 def probe_buffer(buffer : bytes):
     print("testing")
-    cmd = ['ffprobe', '-show_format', '-pretty', "-"
-           '-loglevel', 'quiet'
-           ]
+    cmd = ['ffprobe', '-show_format', '-pretty', "-"]
     p : subprocess.Popen = subprocess.Popen(cmd, stdin=subprocess.PIPE
                                             , stdout=subprocess.PIPE, stderr=subprocess.PIPE
                                             )
     p.stdin.write(buffer)
     out, err =  p.communicate()
-    print (out)
-    if err:
-        print (err)
     print(p.returncode)
     return (out, err, p.returncode)
 
@@ -254,6 +249,7 @@ def main():
         t.start()
     for t in test_threads:
         t.join()
+
     for v in g_all_clients.values():
         v.init_first()
     for v in g_all_clients.values():
