@@ -40,7 +40,7 @@ recv_in_ready = False
 subprocs : list[subprocess.Popen]= []
 
 def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
-    command = ["ffmpeg", "-y"]
+    command = ["ffmpeg", "-y", "-fflags", "+discardcorrupt"]
     
     #sample rate in
     #command += ["-sample_rate", "44100"]
