@@ -49,21 +49,20 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     for client_pipe in clients:
         command += ["-i", muxin_base_path + client_pipe]
     
-
-    if len(clients) > 1:
-        command += ["-async", "1", "-filter_complex"]
-        filter_command = ""
-        for i, client_pipe in enumerate(clients):
-            filter_command += f"[{i}]"
-            filter_command += "adelay=0:all=true"
-            if i < len(clients) - 1:
-                filter_command += ",apad"
-            filter_command += f"[a{i}];"
-        for i in range(len(clients)):
-            filter_command += f"[a{i}]"
+    command += ["-i", "nullsrc=channel_layout=stereo:sample_rate=48000"]
+    command += ["-async", "1", "-filter_complex"]
+    filter_command = ""
+    for i, client_pipe in enumerate(clients):
+        filter_command += f"[{i}]"
+        filter_command += "adelay=0:all=true"
+        if i != 0:
+            filter_command += ",apad"
+        filter_command += f"[a{i}];"
+    for i in range(len(clients)):
+        filter_command += f"[a{i}]"
         
-        filter_command += f"amerge={len(clients)}"
-        command += [filter_command]
+    filter_command += f"amerge={len(clients)}"
+    command += [filter_command]
     #audio channel out
     command += ["-ac", "2"]
     #sample rate out
