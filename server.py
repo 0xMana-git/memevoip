@@ -163,6 +163,7 @@ class Client:
                 continue
             client.write_buffer(self.addr_key, buffer)
     
+    #TODO: fix encodes breaking when u stop sending data to server
     def send_loop(self):
         try:
             while not self.pipe_broken:
