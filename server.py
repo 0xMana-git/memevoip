@@ -51,17 +51,15 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
         command += ["-i", muxin_base_path + client_pipe]
     
     
-    command += ["-async", "1", "-filter_complex"]
+    command += ["-filter_complex"]
     filter_command = ""
     inputs_len = len(clients) + 1
 
     for i in range(inputs_len):
         filter_command += f"[{i}]"
-        #filter_command += "adelay=delays=0:all=true"
+        filter_command += "atrim=0"
         if i != 0:
-            filter_command += "apad"
-        else:
-            filter_command += "anull"
+            filter_command += ",apad"
         filter_command += f"[a{i}];"
     for i in range(inputs_len):
         filter_command += f"[a{i}]"
