@@ -53,7 +53,8 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     
     command += ["-async", "1", "-filter_complex"]
     filter_command = ""
-    for i, client_pipe in enumerate([None] + clients):
+
+    for i in range(1 + len(clients)):
         filter_command += f"[{i}]"
         filter_command += "adelay=0:all=true"
         if i != 0:
