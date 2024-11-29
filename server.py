@@ -185,7 +185,7 @@ class Client:
                 self.pipe_broken = True
             self.on_recv(data)
         self.debug_print("recv socket broken")
-        self.close_pipes()
+        self.close_sent_to_pipes()
         
     def reload_mux(self):
         start_mux(self.sender_pipes.keys(), self.client_pipe_root, self.muxout_path)
