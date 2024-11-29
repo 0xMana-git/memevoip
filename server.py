@@ -185,6 +185,7 @@ class Client:
                 self.pipe_broken = True
             self.on_recv(data)
         self.debug_print("recv socket broken")
+        self.close_pipes()
         
     def reload_mux(self):
         start_mux(self.sender_pipes.keys(), self.client_pipe_root, self.muxout_path)
@@ -209,7 +210,12 @@ class Client:
             self.sender_pipes[sender_key] = utils.mkfifo_open(fifo_path, os.O_RDWR, "wb")
         #pipe for muxout
         self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
-        
+    
+    def close_pipes(self):
+        for p in self.sender_pipes.values():
+            p.close()
+        #maybe dont close this pipe
+        #self.muxout_pipe.close()
     
     def start_threads(self) -> list:
         return [utils.start_daemon_thread(self.recv_loop), utils.start_daemon_thread(self.send_loop)]
