@@ -117,6 +117,7 @@ class Client:
         self.in_test_path : str = self.client_pipe_root + IN_TEST_PATH
         
         self.pipe_broken = False
+        self.recv_eof : bool = False
         self.is_valid_sender = True
 
         os.makedirs(self.client_pipe_root, exist_ok=True)
@@ -131,6 +132,7 @@ class Client:
         self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
         self.in_test_pipe : _io.BufferedWriter = None
+        
     
     def debug_print(self, msg):
         print(f"[CLIENT] {self.addr_key}: {msg}")
@@ -175,16 +177,17 @@ class Client:
             return
         
     def recv_loop(self):
-        while not self.pipe_broken:
+        while not self.pipe_broken and not self.recv_eof:
             if self.test_buffer == None:
                 data = self.socket.recv(cfg.buffer_size)
             else:
                 data = self.test_buffer
                 self.test_buffer = None
             if not data:
-                self.pipe_broken = True
+                self.recv_eof = True
+                break
             self.on_recv(data)
-        self.debug_print("recv socket broken")
+        self.debug_print("recv socket broken/eof")
         self.close_sent_to_pipes()
         
     def reload_mux(self):
