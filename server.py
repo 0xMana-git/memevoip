@@ -11,6 +11,7 @@ import utils
 import cfg
 import sys
 import signal
+import traceback
 
 import _io
 HOST = "0.0.0.0"
@@ -130,6 +131,9 @@ class Client:
         self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
         self.in_test_pipe : _io.BufferedWriter = None
+    
+    def debug_print(self, msg):
+        print(f"[CLIENT] {self.addr_key}: {msg}")
         
         
     def write_buffer(self, client_addr, buffer : bytes):
@@ -165,7 +169,8 @@ class Client:
             while not self.pipe_broken:
                 data = self.muxout_pipe.read(cfg.buffer_size)
                 self.socket.send(data)
-        except:
+        except Exception as e:
+            self.debug_print("send socket broken ")
             self.pipe_broken = True
             return
         
@@ -179,7 +184,7 @@ class Client:
             if not data:
                 self.pipe_broken = True
             self.on_recv(data)
-        print(f"CLIENT: {self.addr_key} has reached eof")
+        self.debug_print("recv socket broken")
         
     def reload_mux(self):
         start_mux(self.sender_pipes.keys(), self.client_pipe_root, self.muxout_path)
