@@ -161,10 +161,14 @@ class Client:
             client.write_buffer(self.addr_key, buffer)
     
     def send_loop(self):
-        while not self.pipe_broken:
-            data = self.muxout_pipe.read(cfg.buffer_size)
-            self.socket.send(data)
-    
+        try:
+            while not self.pipe_broken:
+                data = self.muxout_pipe.read(cfg.buffer_size)
+                self.socket.send(data)
+        except:
+            self.pipe_broken = True
+            return
+        
     def recv_loop(self):
         while not self.pipe_broken:
             if self.test_buffer == None:
