@@ -57,7 +57,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
 
     for i in range(inputs_len):
         filter_command += f"[{i}]"
-        filter_command += "adelay=0:all=true"
+        filter_command += "adelay=delays=0:all=true"
         if i != 0:
             filter_command += ",apad"
         filter_command += f"[a{i}];"
