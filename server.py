@@ -56,12 +56,11 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
         for i, client_pipe in enumerate(clients):
             filter_command += f"[{i}]adelay=0:all=true"
             if i < len(filter_command) - 1:
-                filter_command += "apad"
+                filter_command += ",apad"
             filter_command += ";"
         
         filter_command += f"amerge=inputs={len(clients)}"
         command += [filter_command]
-    command += ["-af", "apad"]
     #audio channel out
     command += ["-ac", "2"]
     #sample rate out
