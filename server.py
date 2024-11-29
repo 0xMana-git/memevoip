@@ -54,12 +54,12 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     filter_command = ""
     inputs_len = len(clients)
 
-    # for i in range(inputs_len):
-    #     filter_command += f"[{i}]"
-    #     filter_command += "atrim=0"
-    #     filter_command += f"[a{i}];"
-    # for i in range(inputs_len):
-    #     filter_command += f"[a{i}]"
+    for i in range(inputs_len):
+        filter_command += f"[{i}]"
+        filter_command += "atrim=0"
+        filter_command += f"[a{i}];"
+    for i in range(inputs_len):
+        filter_command += f"[a{i}]"
         
     filter_command += f"amix=inputs={inputs_len}:duration=longest"
     command += [filter_command]
@@ -175,6 +175,7 @@ class Client:
             if not data:
                 self.pipe_broken = True
             self.on_recv(data)
+        print(f"CLIENT: {self.addr_key} has reached eof")
         
     def reload_mux(self):
         start_mux(self.sender_pipes.keys(), self.client_pipe_root, self.muxout_path)
