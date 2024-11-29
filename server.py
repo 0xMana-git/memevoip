@@ -49,7 +49,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     for client_pipe in clients:
         command += ["-i", muxin_base_path + client_pipe]
     
-    command += ["-i", "nullsrc=channel_layout=stereo:sample_rate=48000"]
+    command += ["-f", "lavfi", "-i", "nullsrc=channel_layout=stereo:sample_rate=48000"]
     command += ["-async", "1", "-filter_complex"]
     filter_command = ""
     for i, client_pipe in enumerate(clients):
