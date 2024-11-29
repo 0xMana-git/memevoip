@@ -58,7 +58,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
             if i < len(filter_command) - 1:
                 filter_command += ",apad"
             filter_command += ";"
-            for i in range(len(client_pipe)):
+            for i in range(len(clients)):
                 filter_command += f"[a{i}]"
         
         filter_command += f"amerge={len(clients)}"
