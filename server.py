@@ -27,7 +27,6 @@ certfile = key_base + "/fullchain.pem"
 
 
 MUXOUT_PATH = "muxed_out"
-IN_TEST_PATH = "test_in"
 context = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
 context.load_cert_chain(certfile, keyfile)
 server = context.wrap_socket(
@@ -114,7 +113,6 @@ class Client:
         self.socket = conn
         self.client_pipe_root = pipes_path + self.addr_key + "/"
         self.muxout_path : str = self.client_pipe_root + MUXOUT_PATH
-        self.in_test_path : str = self.client_pipe_root + IN_TEST_PATH
         
         self.pipe_broken = False
         self.recv_eof : bool = False
@@ -131,8 +129,7 @@ class Client:
         self.sender_pipes : dict[str, _io.BufferedWriter] = {}
         self.sender_pipe_paths : dict[str, str] = {}
         self.muxout_pipe : _io.BufferedReader = None
-        self.in_test_pipe : _io.BufferedWriter = None
-        
+
     
     def debug_print(self, msg):
         print(f"[CLIENT] {self.addr_key}: {msg}")
