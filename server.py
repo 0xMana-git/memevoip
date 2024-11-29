@@ -55,9 +55,9 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
         filter_command = ""
         for i, client_pipe in enumerate(clients):
             filter_command += f"[{i}]"
-            #filter_command += "adelay=0:all=true"
+            filter_command += "adelay=0:all=true"
             if i < len(clients) - 1:
-                filter_command += "apad"
+                filter_command += ",apad"
             filter_command += ";"
         for i in range(len(clients)):
             filter_command += f"[a{i}]"
