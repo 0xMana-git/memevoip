@@ -76,8 +76,8 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     print(command)
 
     p = subprocess.Popen(command,
-       stderr=subprocess.DEVNULL,
-       stdout=subprocess.DEVNULL
+    #    stderr=subprocess.DEVNULL,
+    #    stdout=subprocess.DEVNULL
                      )
     subprocs.append(p)
 
