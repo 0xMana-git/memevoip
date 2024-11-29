@@ -211,9 +211,9 @@ class Client:
         #pipe for muxout
         self.muxout_pipe = utils.mkfifo_open(self.muxout_path, os.O_RDWR, "rb")
     
-    def close_pipes(self):
-        for p in self.sender_pipes.values():
-            p.close()
+    def close_sent_to_pipes(self):
+        for c in self.recievers():
+            c.sender_pipes[self.addr_key].close()
         #maybe dont close this pipe
         #self.muxout_pipe.close()
     
