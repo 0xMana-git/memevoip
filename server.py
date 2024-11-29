@@ -64,7 +64,7 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     for i in range(inputs_len):
         filter_command += f"[a{i}]"
         
-    filter_command += f"amerge={len(clients)}"
+    filter_command += f"amerge={inputs_len}"
     command += [filter_command]
     #audio channel out
     command += ["-ac", "2"]
