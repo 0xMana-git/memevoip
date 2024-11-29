@@ -46,25 +46,22 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     #command += ["-f", "wav"]
     #audio channel in
     #command += ["-ac", "2"]
-    command += ["-f", "lavfi", "-i", "anullsrc=channel_layout=stereo:sample_rate=48000"]
     for client_pipe in clients:
         command += ["-i", muxin_base_path + client_pipe]
     
     
     command += ["-filter_complex"]
     filter_command = ""
-    inputs_len = len(clients) + 1
+    inputs_len = len(clients)
 
     for i in range(inputs_len):
         filter_command += f"[{i}]"
         filter_command += "atrim=0"
-        if i != 0:
-            filter_command += ",apad"
         filter_command += f"[a{i}];"
     for i in range(inputs_len):
         filter_command += f"[a{i}]"
         
-    filter_command += f"amerge=inputs={inputs_len}"
+    filter_command += f"amix=inputs={inputs_len}"
     command += [filter_command]
     #audio channel out
     command += ["-ac", "2"]
