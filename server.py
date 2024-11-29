@@ -53,14 +53,15 @@ def start_mux(clients : list, muxin_base_path : str, muxout_path : str) -> None:
     
     command += ["-async", "1", "-filter_complex"]
     filter_command = ""
+    inputs_len = len(clients) + 1
 
-    for i in range(1 + len(clients)):
+    for i in range(inputs_len):
         filter_command += f"[{i}]"
         filter_command += "adelay=0:all=true"
         if i != 0:
             filter_command += ",apad"
         filter_command += f"[a{i}];"
-    for i in range(len(clients)):
+    for i in range(inputs_len):
         filter_command += f"[a{i}]"
         
     filter_command += f"amerge={len(clients)}"
